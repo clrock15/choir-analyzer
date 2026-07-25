@@ -385,7 +385,7 @@ textarea{font-family:inherit;resize:none}
   <div style="width:68px;height:68px;background:linear-gradient(135deg,var(--acc),var(--S));border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:34px;box-shadow:0 8px 30px rgba(129,140,248,.35)">🎼</div>
   <div style="font-size:21px;font-weight:800;text-align:center">Choir Analyzer</div>
   <div style="display:flex;align-items:center;gap:6px">
-    <div style="background:var(--sur);border:1px solid var(--bdr);border-radius:6px;padding:3px 10px;font-size:10px;font-family:monospace;color:var(--ok)">✓ 2026-07-25 04:15 KST</div>
+    <div style="background:var(--sur);border:1px solid var(--bdr);border-radius:6px;padding:3px 10px;font-size:10px;font-family:monospace;color:var(--ok)">✓ 2026-07-25 04:24 KST</div>
   </div>
   <div style="color:var(--mut);font-size:13px;text-align:center;line-height:1.6">스피커 음향 실시간 분석<br>SATB 파트별 M32 가이드</div>
   <div id="errBox" style="width:100%;max-width:300px;background:#1e0f0f;border:1px solid #7f1d1d;border-radius:9px;padding:11px;color:#fca5a5;font-size:12px;line-height:1.7;display:none"></div>
@@ -908,28 +908,35 @@ function gP(id){return projects.find(p=>p.id===id);}
 /* ═ 레이아웃 ═ */
 function chkLayout(){
   isMobile=window.innerWidth<900;
+  // Always hide everything first
+  ['L0','L1','L2','L3','L5','L6','L7'].forEach(id=>{
+    document.getElementById(id).classList.add('off');
+  });
+  document.getElementById('DSK').style.display='none';
+
+  if(!audioCtx){
+    // No mic yet — always show L0 regardless of screen size
+    document.getElementById('L0').classList.remove('off');
+    return;
+  }
+
   if(isMobile){
-    document.getElementById('DSK').style.display='none';
-    if(audioCtx){document.getElementById(curL).classList.remove('off');}
+    // Mobile + mic ready: show current layer
+    document.getElementById(curL).classList.remove('off');
   } else {
-    ['L0','L1','L2','L3','L5','L6','L7'].forEach(id=>document.getElementById(id).classList.add('off'));
-    if(audioCtx){
-      document.getElementById('DSK').style.display='flex';
-      rdPL();rdSL();rdTL();bldBal();bldLeg();bldBalFull();
-      if(curPid){
-        const p=gP(curPid);
-        if(p){
-          document.getElementById('dhProjNm').textContent=p.name+' ▾';
-          const ti=TYPES[p.type]||TYPES.sa;
-          document.getElementById('dhProjIc').textContent=ti.ic;
-          document.getElementById('dhProjSub').textContent=ti.nm+(p.feast?' · '+p.feast:'');
-        }
+    // Desktop + mic ready: show DSK
+    document.getElementById('DSK').style.display='flex';
+    rdPL();rdSL();rdTL();bldBal();bldLeg();bldBalFull();
+    if(curPid){
+      const p=gP(curPid);
+      if(p){
+        document.getElementById('dhProjNm').textContent=p.name+' ▾';
+        const ti=TYPES[p.type]||{ic:'📁',nm:'예배'};
+        document.getElementById('dhProjIc').textContent=ti.ic;
+        document.getElementById('dhProjSub').textContent=ti.nm+(p.feast?' · '+p.feast:'');
       }
-      rszCv('dkSpecCv');
-    } else {
-      document.getElementById('DSK').style.display='none';
-      document.getElementById('L0').classList.remove('off');
     }
+    rszCv('dkSpecCv');
   }
 }
 window.addEventListener('resize',chkLayout);
