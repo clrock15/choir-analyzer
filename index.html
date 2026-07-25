@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -12,352 +12,835 @@
 <link rel="apple-touch-icon" href="icon-192.svg">
 <title>FALCON Choir Analyzer</title>
 <style>
+/* ════════════════════════════════
+   FALCON Choir Analyzer — 1920×1080 Desktop
+   ════════════════════════════════ */
 :root {
   --bg:#0d1117; --sur:#161b22; --sur2:#1c2330; --bdr:#30363d;
   --txt:#e6edf3; --mut:#7d8590;
   --S:#c084fc; --A:#34d399; --T:#60a5fa; --B:#f97316;
   --ok:#22c55e; --warn:#f59e0b; --danger:#ef4444; --acc:#818cf8;
-  --safe-top:env(safe-area-inset-top,0px); --safe-bot:env(safe-area-inset-bottom,0px);
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bot:env(safe-area-inset-bottom,0px);
+  --hdr:52px; --sb:280px; --rp:360px;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html{height:100%;overflow:hidden}
-body{background:var(--bg);color:var(--txt);font-family:-apple-system,'Helvetica Neue',Inter,sans-serif;font-size:13px;height:100dvh;display:flex;flex-direction:column;padding-top:var(--safe-top);overflow:hidden;-webkit-font-smoothing:antialiased}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--txt);font-family:-apple-system,'Helvetica Neue',Inter,sans-serif;font-size:13px;-webkit-font-smoothing:antialiased}
 input[type=range]{-webkit-appearance:none;appearance:none;outline:none;cursor:pointer}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%}
-input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:var(--sur2)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%}
 button{font-family:inherit;cursor:pointer;border:none}
+input[type=file]{display:none}
+textarea{font-family:inherit;resize:none}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:2px}
 
-/* ══ SCREEN 1: 시작 화면 ══ */
-#scStart{position:fixed;inset:0;z-index:300;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:calc(var(--safe-top)+28px) 20px calc(var(--safe-bot)+20px);overflow-y:auto;gap:16px}
-.ov-logo{width:72px;height:72px;background:linear-gradient(135deg,var(--acc),var(--S));border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 8px 32px rgba(129,140,248,.35)}
-.ov-title{font-size:22px;font-weight:800;letter-spacing:-.5px}
-.ov-sub{color:var(--mut);font-size:13px;text-align:center;line-height:1.6}
-.err-msg{width:100%;max-width:340px;background:#1e0f0f;border:1px solid #7f1d1d;border-radius:10px;padding:12px;color:#fca5a5;font-size:12px;line-height:1.7;display:none}
+/* ═══ MOBILE LAYERS ═══ */
+.L{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;overflow:hidden}
+.L.off{display:none!important}
+.Lhd{display:flex;align-items:center;gap:10px;padding:11px 15px;background:var(--sur);border-bottom:1px solid var(--bdr);flex-shrink:0}
+.Ltitle{font-size:16px;font-weight:800;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.Lscroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 14px calc(var(--safe-bot) + 14px)}
+.back{background:var(--sur2);border:1px solid var(--bdr);border-radius:8px;padding:6px 12px;color:var(--txt);font-size:13px;font-weight:600;flex-shrink:0}
+.bigbtn{width:100%;padding:13px;border-radius:12px;border:none;color:#fff;font-size:14px;font-weight:800;margin-top:10px;cursor:pointer}
+.bigbtn:disabled{opacity:.35;cursor:not-allowed}
+.sec{font-size:10px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.6px;margin:14px 0 8px}
+.empty{display:flex;flex-direction:column;align-items:center;gap:8px;padding:24px;text-align:center;color:var(--mut)}
+.empty .ei{font-size:32px}
+.empty h3{font-size:13px;font-weight:700;color:var(--txt)}
+.empty p{font-size:11px;line-height:1.7}
+#L0{z-index:600}#L1{z-index:500}#L2{z-index:510}#L3{z-index:520}#L5{z-index:530}#L6{z-index:540}#L7{z-index:550}
 
-/* ══ SCREEN 2: 모드 선택 ══ */
-#scMode{position:fixed;inset:0;z-index:300;background:var(--bg);display:none;flex-direction:column;padding:calc(var(--safe-top)+20px) 20px calc(var(--safe-bot)+20px);overflow-y:auto}
-.mode-hd{display:flex;align-items:center;gap:10px;margin-bottom:6px}
-.mode-back{background:var(--sur2);border:1px solid var(--bdr);border-radius:8px;padding:6px 12px;color:var(--txt);font-size:13px;font-weight:600}
-.mode-title{font-size:18px;font-weight:800}
-.mode-sub{color:var(--mut);font-size:12px;line-height:1.6;margin-bottom:18px}
+/* ═══ 1920×1080 DESKTOP ═══ */
+#DSK{display:none;height:100vh;flex-direction:column;overflow:hidden;background:var(--bg)}
 
-.mode-card{background:var(--sur);border:2px solid var(--bdr);border-radius:16px;padding:16px;margin-bottom:12px;cursor:pointer;transition:border-color .15s,transform .1s;position:relative;overflow:hidden}
-.mode-card:active{transform:scale(.98)}
-.mode-card.selected{border-color:var(--acc)}
-.mode-card.disabled{opacity:.5;cursor:not-allowed}
-.mc-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:10px}
-.mc-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
-.mc-info{flex:1}
-.mc-name{font-size:15px;font-weight:800;margin-bottom:3px}
-.mc-desc{font-size:11px;color:var(--mut);line-height:1.6}
-.mc-tag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;margin-top:6px}
-.tag-easy{background:#052e16;color:var(--ok)}
-.tag-mid{background:#1c1700;color:var(--warn)}
-.tag-hard{background:#1e0f0f;color:var(--danger)}
-.tag-coming{background:var(--sur2);color:var(--mut)}
+/* ── Header (52px) ── */
+#DH{
+  height:var(--hdr);flex-shrink:0;
+  display:flex;align-items:center;gap:0;
+  background:var(--sur);border-bottom:1px solid var(--bdr);
+  padding:0 18px;
+}
+.dh-logo{width:32px;height:32px;background:linear-gradient(135deg,var(--acc),var(--S));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;margin-right:10px}
+.dh-appnm{font-size:15px;font-weight:900;letter-spacing:-.4px;margin-right:18px;flex-shrink:0}
+.dh-divider{width:1px;height:22px;background:var(--bdr);margin:0 14px;flex-shrink:0}
+/* 프로젝트/악보 선택 */
+.dh-proj{display:flex;align-items:center;gap:8px;cursor:pointer;padding:5px 12px;border-radius:7px;border:1px solid var(--bdr);background:var(--sur2);transition:border-color .15s;flex-shrink:0}
+.dh-proj:hover{border-color:var(--acc)}
+.dh-proj-ic{font-size:15px}
+.dh-proj-nm{font-size:13px;font-weight:700;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dh-proj-sub{font-size:10px;color:var(--mut)}
+.dh-score-nm{font-size:11px;color:var(--ok);padding:3px 10px;background:#052e16;border:1px solid #166534;border-radius:6px;cursor:pointer;flex-shrink:0}
+/* 모드 토글 */
+.dh-modes{display:flex;gap:3px;padding:3px;background:var(--sur2);border-radius:8px;border:1px solid var(--bdr);flex-shrink:0}
+.dh-mode{padding:4px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;color:var(--mut);transition:all .15s}
+.dh-mode.on{background:var(--acc);color:#fff}
+/* Control: start/stop/rec/timer */
+.dh-ctrl{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.ctrl-dot{width:9px;height:9px;border-radius:50%;background:var(--mut)}
+.ctrl-dot.run{background:var(--ok);box-shadow:0 0 8px var(--ok);animation:pulse 1.2s infinite}
+.ctrl-dot.stp{background:var(--danger)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.btn-start{display:flex;align-items:center;gap:7px;padding:7px 20px;border-radius:8px;background:linear-gradient(135deg,var(--ok),#16a34a);border:none;color:#fff;font-size:13px;font-weight:800}
+.btn-stop{display:flex;align-items:center;gap:7px;padding:7px 18px;border-radius:8px;background:#2d0000;border:2px solid var(--danger);color:var(--danger);font-size:13px;font-weight:800}
+.btn-stop:disabled{opacity:.3;cursor:not-allowed}
+.btn-rec{display:flex;align-items:center;gap:5px;padding:7px 14px;border-radius:8px;background:var(--sur2);border:1px solid var(--bdr);color:var(--txt);font-size:12px;font-weight:700}
+.btn-rec.on{background:#2d0000;border-color:var(--danger);color:var(--danger)}
+.ctrl-timer{font-family:'Courier New',monospace;font-size:18px;font-weight:800;color:var(--mut);min-width:64px;text-align:center}
+.ctrl-timer.on{color:var(--ok)}
+/* Part select (header) */
+.dh-psel{display:flex;align-items:center;gap:5px;flex-shrink:0}
+.dh-psel-lbl{font-size:11px;color:var(--mut)}
+.dh-psel-btn{padding:4px 11px;border-radius:6px;border:2px solid var(--bdr);background:transparent;color:var(--mut);font-size:12px;font-weight:800;cursor:pointer;transition:all .15s}
+.dh-psel-btn.on{border-color:currentColor}
+/* Status */
+.dh-status{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:11px;color:var(--mut)}
 
-.mc-pros{display:flex;flex-direction:column;gap:4px}
-.mc-pro{display:flex;align-items:flex-start;gap:6px;font-size:11px;line-height:1.5}
-.mc-pro .pi{font-size:12px;flex-shrink:0;margin-top:1px}
-.mc-pro.con{color:var(--mut)}
-.mc-pro.pro{color:var(--txt)}
+/* ── Body ── */
+#DB{display:flex;flex:1;overflow:hidden;height:calc(100vh - var(--hdr))}
 
-.mode-sel-btn{width:100%;padding:14px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--acc),var(--S));color:#fff;font-size:16px;font-weight:800;margin-top:4px;box-shadow:0 4px 20px rgba(129,140,248,.35);transition:opacity .1s}
-.mode-sel-btn:active{opacity:.85}
-.mode-sel-btn:disabled{opacity:.4;cursor:not-allowed}
+/* ── Sidebar (280px) ── */
+#DSB{
+  width:var(--sb);min-width:var(--sb);
+  background:var(--sur);border-right:1px solid var(--bdr);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.sb-sec{flex-shrink:0;border-bottom:1px solid var(--bdr);padding:10px 13px}
+.sb-ttl{font-size:10px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.6px;margin-bottom:7px;display:flex;align-items:center;justify-content:space-between}
+.sb-ttl button{background:var(--acc);border:none;border-radius:5px;padding:2px 9px;color:#fff;font-size:10px;font-weight:700;cursor:pointer}
+/* Project list */
+.sb-pl{flex:1;overflow-y:auto;padding:7px 10px}
+.sb-pi{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;cursor:pointer;margin-bottom:3px;transition:background .15s}
+.sb-pi:hover{background:var(--sur2)}
+.sb-pi.act{background:var(--sur2);border:1px solid var(--acc)}
+.sb-pi-ic{font-size:16px;flex-shrink:0}
+.sb-pi-nm{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-pi-sub{font-size:10px;color:var(--mut)}
+/* Score list */
+.sb-sl{padding:0 10px 8px;overflow-y:auto;max-height:140px}
+.sb-si{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:7px;cursor:pointer;margin-bottom:3px;transition:background .15s}
+.sb-si:hover{background:var(--sur2)}
+.sb-si.asc{background:#052e16;border:1px solid #166534}
+.sb-sithumb{width:32px;height:32px;border-radius:5px;object-fit:cover;background:var(--sur2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px}
+.sb-sinm{font-size:11px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-sisub{font-size:9px;color:var(--mut)}
+/* Target sliders */
+.sb-tgt{padding:0 13px 8px}
+.sb-trow{display:flex;align-items:center;gap:6px;margin-bottom:5px}
+.sb-trow .sid{font-size:12px;font-weight:900;min-width:16px}
+.sb-trow input{flex:1;height:3px}
+.sb-trow span{font-family:monospace;font-size:10px;color:var(--mut);min-width:34px;text-align:right}
 
-/* ══ MAIN APP ══ */
-#hdr{display:flex;align-items:center;gap:10px;padding:10px 16px;background:var(--sur);border-bottom:1px solid var(--bdr);flex-shrink:0}
-.hdr-icon{width:30px;height:30px;border-radius:8px;flex-shrink:0;background:linear-gradient(135deg,var(--acc),var(--S));display:flex;align-items:center;justify-content:center;font-size:14px}
-.hdr-info{flex:1;min-width:0}
-.hdr-title{font-size:13px;font-weight:700}
-.hdr-sub{font-size:10px;color:var(--mut)}
-.hdr-right{display:flex;align-items:center;gap:8px}
-.hdr-pill{display:flex;align-items:center;gap:5px;padding:4px 9px;border-radius:20px;border:1px solid var(--bdr);background:var(--sur2);font-size:11px}
-.hdot{width:7px;height:7px;border-radius:50%;background:var(--mut)}
-.hdot.on{background:var(--ok);box-shadow:0 0 7px var(--ok);animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
-.mode-badge{padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;background:var(--sur2);border:1px solid var(--bdr);color:var(--mut);cursor:pointer}
+/* ── Main (채널 + 오른쪽 패널) ── */
+#DM{flex:1;overflow:hidden;display:flex}
 
-#tabs{display:flex;background:var(--sur);border-bottom:1px solid var(--bdr);flex-shrink:0}
-.tab{flex:1;padding:9px 4px;text-align:center;font-size:11px;font-weight:600;color:var(--mut);border-bottom:2px solid transparent;transition:color .15s;user-select:none;display:flex;flex-direction:column;align-items:center;gap:2px}
-.tab .ti{font-size:15px}
-.tab.on{color:var(--txt);border-bottom-color:var(--acc)}
+/* Channel area */
+#DCH{
+  flex:1;overflow:hidden;display:flex;flex-direction:column;
+}
+/* Full mode */
+#dkFullArea{padding:20px;display:flex;flex-direction:column;gap:14px;height:100%;overflow-y:auto}
+.dk-full-vu-card{background:var(--sur);border-radius:14px;padding:28px 32px;display:flex;flex-direction:column;gap:14px;border:1px solid var(--bdr)}
+.dk-full-db{font-family:'Courier New',monospace;font-size:120px;font-weight:800;color:var(--acc);text-align:center;line-height:1;transition:color .1s}
+.dk-full-unit{font-size:15px;color:var(--mut);text-align:center}
+.dk-full-bar{height:30px;background:var(--sur2);border-radius:10px;overflow:hidden}
+.dk-full-fill{height:100%;border-radius:10px;transition:width .05s}
+.dk-full-marks{display:flex;justify-content:space-between;font-size:10px;color:var(--mut);font-family:monospace;margin-top:3px}
+.dk-full-peak-row{display:flex;justify-content:space-between;font-size:14px}
+/* Part mode */
+#dkPartArea{padding:16px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;height:100%;overflow-y:auto;align-content:start}
+.dk-ch{background:var(--sur);border-radius:12px;padding:16px;border:1px solid var(--bdr);display:flex;flex-direction:column;gap:10px;transition:border-color .2s}
+.dk-ch.off{opacity:.2;pointer-events:none}
+.dk-ch-top{display:flex;justify-content:space-between;align-items:flex-start}
+.dk-ch-id{font-size:36px;font-weight:900;line-height:1}
+.dk-ch-nm{font-size:10px;color:var(--mut);margin-top:2px}
+.dk-ch-dbb{text-align:right}
+.dk-ch-db{font-family:'Courier New',monospace;font-size:32px;font-weight:800;line-height:1}
+.dk-ch-u{font-size:10px;color:var(--mut)}
+.dk-ch-pk{font-family:'Courier New',monospace;font-size:11px;color:var(--mut);margin-top:2px}
+/* VU bar */
+.dk-vu{display:flex;gap:5px;height:120px}
+.dk-vu-t{flex:1;background:var(--sur2);border-radius:4px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;position:relative}
+.dk-vu-scale{position:absolute;top:0;left:0;right:0;height:100%;pointer-events:none}
+.dk-vu-b{width:100%;border-radius:3px;transition:height .04s}
+/* Pitch */
+.dk-pit{display:flex;align-items:center;gap:7px}
+.dk-pit-n{font-family:'Courier New',monospace;font-size:16px;font-weight:700;min-width:42px}
+.dk-pit-t{flex:1;height:6px;background:var(--sur2);border-radius:3px;position:relative}
+.dk-pit-nd{position:absolute;top:-5px;width:14px;height:14px;border-radius:50%;transform:translateX(-50%);transition:left .1s}
+.dk-pit-c{font-family:'Courier New',monospace;font-size:12px;min-width:36px;text-align:right;font-weight:700}
+.fl{color:#60a5fa}.sh{color:#f97316}.it{color:var(--ok)}
+/* Pitch stats */
+.dk-ps{display:flex;gap:3px}
+.dk-psi{flex:1;text-align:center;padding:4px 2px;border-radius:5px;font-size:11px;font-weight:700}
+.dk-psf{background:#1e3a5f;color:#60a5fa}
+.dk-pso{background:#052e16;color:var(--ok)}
+.dk-pss{background:#431407;color:#f97316}
+/* Badge */
+.dk-bdg{display:flex;align-items:center;gap:6px;padding:7px 10px;border-radius:8px;font-size:13px;font-weight:600;border:1px solid}
+.dk-bdg.idle{background:var(--sur2);border-color:var(--bdr);color:var(--mut)}
+.dk-bdg.ok{background:#052e16;border-color:#166534;color:var(--ok)}
+.dk-bdg.warn{background:#1c1700;border-color:#713f12;color:var(--warn)}
+.dk-bdg.low{background:#1c0d06;border-color:#9a3412;color:#fb923c}
+.dk-bdg.high{background:#1e0f0f;border-color:#991b1b;color:var(--danger)}
+.dk-bdg-adj{margin-left:auto;font-family:monospace;font-size:12px}
+/* Target slider in card */
+.dk-tsl{display:flex;align-items:center;gap:7px}
+.dk-tsl label{font-size:10px;color:var(--mut);min-width:24px}
+.dk-tsl input{flex:1;height:4px}
+.dk-tsl span{font-family:monospace;font-size:11px;color:var(--mut);min-width:36px;text-align:right}
 
-#main{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:calc(var(--safe-bot)+8px)}
+/* ── Right Panel (360px) ── */
+#DRP{
+  width:var(--rp);min-width:var(--rp);
+  background:var(--sur2);border-left:1px solid var(--bdr);
+  overflow-y:auto;display:flex;flex-direction:column;gap:0;
+}
+.rp-sec{border-bottom:1px solid var(--bdr);padding:14px 16px}
+.rp-ttl{font-size:11px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.6px;margin-bottom:11px}
+/* Balance */
+.rp-bal-row{display:flex;align-items:center;gap:9px;margin-bottom:9px}
+.rp-bal-id{font-size:12px;font-weight:800;min-width:16px}
+.rp-bal-trk{flex:1;height:10px;background:var(--bdr);border-radius:5px;overflow:hidden;position:relative}
+.rp-bal-idl{position:absolute;top:0;height:100%;width:2px;background:rgba(255,255,255,.25)}
+.rp-bal-fl{height:100%;border-radius:5px;transition:width .12s}
+.rp-bal-pct{font-family:monospace;font-size:12px;color:var(--mut);min-width:30px;text-align:right}
+/* Harmony */
+.rp-h-row{display:flex;align-items:center;gap:7px;margin-bottom:6px}
+.rp-h-row:last-child{margin-bottom:0}
+.rp-h-pair{font-weight:700;font-size:12px;color:var(--mut);min-width:32px}
+.rp-h-int{font-size:13px;flex:1}
+.rp-h-cent{font-family:monospace;font-size:12px;min-width:38px;text-align:center}
+.rp-h-bdg{font-size:11px;font-weight:700;padding:3px 9px;border-radius:5px;min-width:44px;text-align:center}
+.hg{background:#052e16;color:var(--ok)}.hw{background:#1c1700;color:var(--warn)}.hb{background:#1e0f0f;color:var(--danger)}
+/* Guide */
+.rp-g-item{display:flex;gap:9px;align-items:flex-start;padding:11px;border-radius:9px;font-size:12px;border:1px solid;margin-bottom:8px}
+.rp-g-item:last-child{margin-bottom:0}
+.rp-g-ic{font-size:17px;flex-shrink:0}
+.rp-g-body strong{font-size:14px;display:block;margin-bottom:2px}
+.rp-g-body p{line-height:1.5;font-size:13px}
+.rp-g-sub{font-size:11px;color:var(--mut);margin-top:3px}
+.smok{background:#052e16;border:1px solid #166534;color:var(--ok);padding:3px 9px;border-radius:5px;font-size:11px;font-weight:700;margin-top:4px;display:inline-block}
+.smoff{background:#1e0f0f;border:1px solid #991b1b;color:var(--danger);padding:3px 9px;border-radius:5px;font-size:11px;font-weight:700;margin-top:4px;display:inline-block}
+/* Spectrum */
+#dkSpecCv{width:100%;display:block;border-radius:8px}
+.rp-spec-leg{display:flex;flex-wrap:wrap;gap:9px;margin-top:8px}
 
-/* ══ 모드 안내 배너 ══ */
-.mode-banner{margin:10px 10px 0;padding:10px 12px;border-radius:10px;border:1px solid;font-size:11px;line-height:1.6}
-.mode-banner.m1{background:#0d1b2a;border-color:#1d4ed8;color:#93c5fd}
-.mode-banner.m2{background:#1c1700;border-color:#854d0e;color:#fcd34d}
-.mode-banner.m3{background:#0f1f0f;border-color:#166534;color:#86efac}
-
-/* ══ CHANNEL VIEW ══ */
-#vCh{display:none}
-.ch-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--bdr)}
-.ch{background:var(--sur);padding:12px;display:flex;flex-direction:column;gap:8px}
-.ch-hd{display:flex;justify-content:space-between;align-items:flex-start}
-.ch-id{font-size:22px;font-weight:900;letter-spacing:.5px;line-height:1}
-.ch-nm{font-size:9px;color:var(--mut);margin-top:2px}
-.ch-db{text-align:right}
-.ch-val{font-family:'Courier New',monospace;font-size:19px;font-weight:700;line-height:1}
-.ch-unit{font-size:9px;color:var(--mut)}
-.ch-pk{font-family:'Courier New',monospace;font-size:10px;color:var(--mut)}
-.vu{display:flex;gap:3px;height:56px}
-.vu-t{flex:1;background:var(--sur2);border-radius:4px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end}
-.vu-b{width:100%;border-radius:4px;transition:height .05s linear}
-.pit{display:flex;align-items:center;gap:5px}
-.pit-n{font-family:'Courier New',monospace;font-size:12px;font-weight:700;min-width:32px}
-.pit-t{flex:1;height:4px;background:var(--sur2);border-radius:2px;position:relative}
-.pit-nd{position:absolute;top:-3px;width:10px;height:10px;border-radius:50%;transform:translateX(-50%);transition:left .1s}
-.pit-c{font-family:'Courier New',monospace;font-size:10px;min-width:32px;text-align:right;font-weight:700}
-.pit-c.flat{color:#60a5fa}.pit-c.sharp{color:#f97316}.pit-c.ok{color:var(--ok)}
-
-.pitch-stat{display:flex;gap:3px}
-.ps-item{flex:1;text-align:center;padding:3px 2px;border-radius:5px;font-size:9px;font-weight:700}
-.ps-flat{background:#1e3a5f;color:#60a5fa}.ps-ok{background:#052e16;color:var(--ok)}.ps-sharp{background:#431407;color:#f97316}
-
-.harmony{background:var(--sur2);border-radius:7px;padding:6px 8px;font-size:11px;border:1px solid var(--bdr)}
-.harmony-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
-.harmony-row:last-child{margin-bottom:0}
-.h-pair{font-weight:700;font-size:10px;color:var(--mut);min-width:30px}
-.h-int{font-size:11px;flex:1;padding:0 4px}
-.h-cent{font-family:monospace;font-size:10px;min-width:36px;text-align:center}
-.h-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;min-width:44px;text-align:center}
-.h-good{background:#052e16;color:var(--ok)}.h-warn{background:#1c1700;color:var(--warn)}.h-bad{background:#1e0f0f;color:var(--danger)}
-
-.bdg{display:flex;align-items:center;gap:5px;padding:5px 8px;border-radius:7px;font-size:11px;font-weight:600;border:1px solid;min-height:28px}
+/* ═══ SHARED MOBILE STYLES ═══ */
+.projcard{background:var(--sur);border:1px solid var(--bdr);border-radius:12px;padding:12px 14px;cursor:pointer;display:flex;align-items:center;gap:11px;margin-bottom:7px}
+.projcard:active{border-color:var(--acc)}
+.pjic{width:40px;height:40px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
+.pjnm{font-size:13px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pjmt{font-size:11px;color:var(--mut);margin-top:2px}
+.pjst{display:flex;gap:5px;margin-top:4px;flex-wrap:wrap}
+.pjs{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600}
+.addbtn{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border-radius:11px;border:2px dashed var(--bdr);background:transparent;color:var(--mut);font-size:13px;font-weight:700;width:100%;cursor:pointer;margin-top:2px}
+.tygrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px}
+.tyc{background:var(--sur);border:2px solid var(--bdr);border-radius:10px;padding:12px 10px;cursor:pointer;text-align:center;transition:all .15s}
+.tyc.on{border-color:var(--acc);background:var(--sur2)}
+.tyc .ti{font-size:22px;margin-bottom:4px}
+.tyc .tn{font-size:13px;font-weight:800}
+.tyc .ts{font-size:10px;color:var(--mut);margin-top:2px}
+.inp{width:100%;background:var(--sur2);border:1px solid var(--bdr);border-radius:9px;padding:11px 13px;color:var(--txt);font-size:13px;outline:none;margin-bottom:6px}
+.inp:focus{border-color:var(--acc)}
+.projbanner{padding:12px 14px;display:flex;align-items:center;gap:11px;background:var(--sur);border-bottom:1px solid var(--bdr);flex-shrink:0}
+.pbic{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.pbnm{font-size:14px;font-weight:800}
+.pbsub{font-size:11px;color:var(--mut);margin-top:1px}
+.aselgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:4px}
+.aselc{background:var(--sur);border:2px solid var(--bdr);border-radius:12px;padding:14px 10px;cursor:pointer;text-align:center;transition:all .15s}
+.aselc:active{transform:scale(.97)}
+.aselc .ai{font-size:26px;margin-bottom:5px}
+.aselc .an{font-size:13px;font-weight:800;margin-bottom:2px}
+.aselc .as{font-size:10px;color:var(--mut);line-height:1.5}
+.tgtgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.tgtcard{background:var(--sur2);border-radius:9px;padding:10px;border:1px solid var(--bdr)}
+.tgtid{font-size:14px;font-weight:900;margin-bottom:4px}
+.tgtrow{display:flex;align-items:center;gap:5px}
+.tgtrow label{font-size:9px;color:var(--mut);min-width:20px}
+.tgtrow input{flex:1;height:3px}
+.tgtrow span{font-family:monospace;font-size:10px;color:var(--mut);min-width:28px;text-align:right}
+.sitem{display:flex;gap:9px;padding:10px;background:var(--sur);border:1px solid var(--bdr);border-radius:9px;margin-bottom:6px}
+.sdt{font-family:monospace;font-size:10px;color:var(--mut);min-width:62px;flex-shrink:0;line-height:1.6;padding-top:2px}
+.sbody{flex:1;min-width:0}
+.smode{font-size:12px;font-weight:700}
+.stags{display:flex;gap:3px;margin-top:3px;flex-wrap:wrap}
+.stag{font-size:10px;padding:1px 6px;border-radius:7px;font-weight:700}
+.snote{font-size:11px;color:var(--mut);margin-top:3px;line-height:1.5}
+.sdel{color:var(--danger);font-size:15px;cursor:pointer;padding:0 3px;flex-shrink:0}
+.ri{background:var(--sur2);border:1px solid var(--bdr);border-radius:9px;padding:10px;margin-bottom:6px}
+.rihd{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+.rinm{font-size:12px;font-weight:700;flex:1}
+.ridel{color:var(--danger);font-size:14px;cursor:pointer}
+.riau{width:100%;height:30px;border-radius:6px;display:block;margin-bottom:5px}
+.dla{display:inline-flex;align-items:center;gap:4px;padding:5px 11px;border-radius:6px;border:1px solid var(--acc);color:var(--acc);font-size:11px;font-weight:700;text-decoration:none}
+/* Mobile analysis */
+.abar{display:flex;align-items:center;gap:9px;padding:9px 13px;flex-shrink:0;border-bottom:1px solid var(--bdr)}
+.adot{width:9px;height:9px;border-radius:50%;background:var(--mut);flex-shrink:0}
+.adot.run{background:var(--ok);box-shadow:0 0 7px var(--ok);animation:pulse 1.2s infinite}
+.adot.stp{background:var(--danger)}
+.atxt{font-size:12px;font-weight:700;flex:1}
+.atmr{font-family:monospace;font-size:13px;font-weight:700;color:var(--mut)}
+.atmr.on{color:var(--ok)}
+.ssrow{display:flex;gap:7px;padding:9px 13px;flex-shrink:0;border-bottom:1px solid var(--bdr)}
+.ssstart{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:11px;border-radius:9px;background:linear-gradient(135deg,var(--ok),#16a34a);color:#fff;border:none;font-size:13px;font-weight:800}
+.ssstop{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:11px;border-radius:9px;background:#2d0000;border:2px solid var(--danger);color:var(--danger);font-size:13px;font-weight:800}
+.ssstop:disabled{opacity:.3;cursor:not-allowed}
+.recibtn{padding:11px;border-radius:9px;border:1px solid var(--bdr);background:var(--sur2);color:var(--txt);display:flex;align-items:center;justify-content:center;gap:5px;font-size:12px;font-weight:700;min-width:66px}
+.recibtn.on{border-color:var(--danger);background:#2d0000;color:var(--danger)}
+.pselbar{padding:9px 13px;display:flex;gap:7px;align-items:center;border-bottom:1px solid var(--bdr);flex-shrink:0;overflow-x:auto}
+.pselbar::-webkit-scrollbar{display:none}
+.pselbtn{flex-shrink:0;padding:5px 11px;border-radius:6px;border:2px solid var(--bdr);background:var(--sur2);color:var(--mut);font-size:12px;font-weight:800;cursor:pointer}
+.pselbtn.on{border-color:currentColor}
+.pselall{padding:5px 9px;border-radius:6px;border:1px solid var(--bdr);background:transparent;color:var(--mut);font-size:11px;font-weight:600;flex-shrink:0;cursor:pointer}
+.chgrid{display:grid;gap:1px;background:var(--bdr)}
+.chgrid.n1{grid-template-columns:1fr}
+.chgrid.n2,.chgrid.n3,.chgrid.n4{grid-template-columns:1fr 1fr}
+.ch{background:var(--sur);padding:10px;display:flex;flex-direction:column;gap:7px}
+.ch.off{opacity:.25;pointer-events:none}
+.chhd{display:flex;justify-content:space-between;align-items:flex-start}
+.chid{font-size:19px;font-weight:900;line-height:1}
+.chnm{font-size:9px;color:var(--mut)}
+.chdbb{text-align:right}
+.chval{font-family:'Courier New',monospace;font-size:16px;font-weight:700;line-height:1}
+.chu{font-size:9px;color:var(--mut)}
+.chpk{font-family:'Courier New',monospace;font-size:10px;color:var(--mut)}
+.vu{display:flex;gap:3px;height:48px}
+.vut{flex:1;background:var(--sur2);border-radius:3px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end}
+.vub{width:100%;border-radius:3px;transition:height .05s}
+.pit{display:flex;align-items:center;gap:4px}
+.pitn{font-family:'Courier New',monospace;font-size:11px;font-weight:700;min-width:28px}
+.pitt{flex:1;height:4px;background:var(--sur2);border-radius:2px;position:relative}
+.pitnd{position:absolute;top:-3px;width:9px;height:9px;border-radius:50%;transform:translateX(-50%);transition:left .1s}
+.pitc{font-family:'Courier New',monospace;font-size:10px;min-width:27px;text-align:right;font-weight:700}
+.ps{display:flex;gap:2px}
+.psi{flex:1;text-align:center;padding:2px;border-radius:4px;font-size:9px;font-weight:700}
+.psf{background:#1e3a5f;color:#60a5fa}.pso{background:#052e16;color:var(--ok)}.pss{background:#431407;color:#f97316}
+.bdg{display:flex;align-items:center;gap:4px;padding:4px 7px;border-radius:6px;font-size:11px;font-weight:600;border:1px solid;min-height:26px}
 .bdg.idle{background:var(--sur2);border-color:var(--bdr);color:var(--mut)}
 .bdg.ok{background:#052e16;border-color:#166534;color:var(--ok)}
 .bdg.warn{background:#1c1700;border-color:#713f12;color:var(--warn)}
 .bdg.low{background:#1c0d06;border-color:#9a3412;color:#fb923c}
 .bdg.high{background:#1e0f0f;border-color:#991b1b;color:var(--danger)}
-.bdg-adj{margin-left:auto;font-family:monospace;font-size:10px}
-.tgt{display:flex;align-items:center;gap:5px}
-.tgt label{font-size:9px;color:var(--mut);min-width:20px}
-.tgt input{flex:1;height:4px;border-radius:2px}
-.tgt span{font-family:monospace;font-size:10px;color:var(--mut);min-width:30px;text-align:right}
+.bdgadj{margin-left:auto;font-family:monospace;font-size:10px}
+.tslrow{display:flex;align-items:center;gap:4px}
+.tslrow label{font-size:9px;color:var(--mut);min-width:19px}
+.tslrow input{flex:1;height:3px}
+.tslrow span{font-family:monospace;font-size:10px;color:var(--mut);min-width:27px;text-align:right}
+.pbtabs{display:flex;background:var(--sur);border-bottom:1px solid var(--bdr);flex-shrink:0}
+.pbtab{flex:1;padding:7px;text-align:center;font-size:11px;font-weight:600;color:var(--mut);border-bottom:2px solid transparent;cursor:pointer}
+.pbtab.on{color:var(--txt);border-bottom-color:var(--acc)}
+.pbcontent{padding:9px 11px}
+.hcard{background:var(--sur2);border-radius:7px;padding:9px;border:1px solid var(--bdr)}
+.hr{display:flex;align-items:center;gap:5px;margin-bottom:4px}
+.hr:last-child{margin-bottom:0}
+.hpair{font-weight:700;font-size:10px;color:var(--mut);min-width:26px}
+.hint{font-size:11px;flex:1}
+.hcnt{font-family:monospace;font-size:10px;min-width:30px;text-align:center}
+.hbdg{font-size:10px;font-weight:700;padding:2px 5px;border-radius:4px;min-width:38px;text-align:center}
+.gi{display:flex;gap:7px;align-items:flex-start;padding:8px;border-radius:8px;font-size:11px;border:1px solid;margin-bottom:5px}
+.gic{font-size:13px;flex-shrink:0}
+.gbody strong{font-size:12px}
+.gbody p{margin-top:2px;line-height:1.5;font-size:11px}
+.gsub{font-size:10px;color:var(--mut);margin-top:2px}
+/* Score */
+.suzzone{background:var(--sur2);border:2px dashed var(--bdr);border-radius:12px;padding:22px;display:flex;flex-direction:column;align-items:center;gap:9px;cursor:pointer;text-align:center}
+.suzzone.hf{border-style:solid;border-color:var(--acc)}
+#scorePreview{width:100%;max-height:200px;object-fit:contain;border-radius:9px;display:none;margin-top:7px}
+.ailod{display:none;flex-direction:column;align-items:center;gap:9px;padding:22px;font-size:12px;color:var(--mut);background:var(--sur2);border-radius:11px;margin-top:9px}
+.spin{width:26px;height:26px;border:3px solid var(--bdr);border-top-color:var(--acc);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.scres{background:var(--sur2);border:1px solid var(--bdr);border-radius:11px;padding:13px;margin-top:11px;display:none}
+.scresttl{font-size:12px;font-weight:800;color:var(--acc);margin-bottom:9px}
+.scpr{display:flex;gap:9px;margin-bottom:9px;padding-bottom:9px;border-bottom:1px solid var(--bdr)}
+.scpr:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.scprid{font-size:17px;font-weight:900;min-width:20px;flex-shrink:0;margin-top:2px}
+.scprb{flex:1;min-width:0}
+.scprrng{font-size:12px;font-weight:700;margin-bottom:3px}
+.scprnts{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:3px}
+.scprnbdg{font-size:10px;padding:2px 6px;border-radius:7px;font-weight:700;background:var(--sur);border:1px solid var(--bdr)}
+.scprdsc{font-size:11px;color:var(--mut);line-height:1.5}
+.scthumb{background:var(--sur2);border:1px solid var(--bdr);border-radius:9px;padding:9px;display:flex;gap:9px;align-items:center;cursor:pointer;margin-bottom:7px}
+.scthimg{width:40px;height:40px;border-radius:5px;object-fit:cover;flex-shrink:0;background:var(--sur);display:flex;align-items:center;justify-content:center;font-size:17px}
+.scthnm{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.scthsub{font-size:10px;color:var(--mut);margin-top:2px}
+.scthdel{color:var(--danger);font-size:15px;cursor:pointer;flex-shrink:0;padding:0 3px}
+.applybtn{width:100%;padding:11px;border-radius:9px;border:none;background:linear-gradient(135deg,var(--ok),#16a34a);color:#fff;font-size:13px;font-weight:800;margin-top:9px;cursor:pointer}
+/* Modals */
+#sessModal{position:fixed;inset:0;z-index:800;background:rgba(0,0,0,.75);display:none;align-items:flex-end;justify-content:center}
+.sessbox{background:var(--sur);border-radius:16px 16px 0 0;padding:17px 17px 22px;width:100%;max-width:580px}
+.sessbox h3{font-size:15px;font-weight:800;margin-bottom:9px}
+.sessbox textarea{width:100%;background:var(--sur2);border:1px solid var(--bdr);border-radius:8px;padding:10px;color:var(--txt);font-size:13px;outline:none;height:76px;margin-bottom:9px}
+.sessbts{display:flex;gap:7px}
+.sesssave{flex:1;padding:11px;border-radius:8px;background:var(--acc);color:#fff;font-size:14px;font-weight:700;cursor:pointer;border:none}
+.sessskip{padding:11px 14px;border-radius:8px;background:var(--sur2);border:1px solid var(--bdr);color:var(--mut);font-size:13px;font-weight:600;cursor:pointer}
+#projModal{position:fixed;inset:0;z-index:900;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center}
+.projmodalbox{background:var(--sur);border-radius:14px;padding:18px;width:440px;max-height:80vh;overflow-y:auto;border:1px solid var(--bdr)}
 
-/* 모드1 — 채널 라벨 편집 */
-.ch-label-edit{font-size:9px;color:var(--acc);text-align:center;padding:2px;cursor:pointer;text-decoration:underline}
-
-/* ══ SPECTRUM ══ */
-#vSpec{display:none;padding:12px}
-#specCv{width:100%;height:180px;border-radius:10px;display:block}
-.leg{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
-.leg-i{display:flex;align-items:center;gap:5px;font-size:11px}
-.leg-l{width:16px;height:2px;border-radius:1px}
-.bal-card{background:var(--sur);border-radius:12px;padding:14px;margin-top:12px}
-.bal-ttl{font-size:10px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px}
-.bal-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
-.bal-id{font-size:11px;font-weight:800;min-width:16px}
-.bal-trk{flex:1;height:8px;background:var(--sur2);border-radius:4px;overflow:hidden;position:relative}
-.bal-idl{position:absolute;top:0;height:100%;width:2px;background:rgba(255,255,255,.18)}
-.bal-fl{height:100%;border-radius:4px;transition:width .15s}
-.bal-pct{font-family:monospace;font-size:10px;color:var(--mut);min-width:28px;text-align:right}
-
-/* ══ GUIDE ══ */
-#vGuide{display:none;padding:12px}
-.g-ttl{font-size:10px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px}
-.dbfs-info{background:var(--sur2);border:1px solid var(--bdr);border-radius:10px;padding:12px;margin-bottom:12px;font-size:11px;line-height:1.7}
-.dbfs-info h4{font-size:12px;font-weight:700;margin-bottom:6px;color:var(--acc)}
-.dbfs-table{width:100%;border-collapse:collapse;font-size:11px;margin-top:6px}
-.dbfs-table th{text-align:left;color:var(--mut);font-weight:600;padding:3px 6px;border-bottom:1px solid var(--bdr)}
-.dbfs-table td{padding:4px 6px;border-bottom:1px solid #21262d}
-.dbfs-table tr:last-child td{border-bottom:none}
-.g-item{display:flex;gap:10px;align-items:flex-start;padding:12px;border-radius:10px;font-size:12px;border:1px solid;margin-bottom:8px}
-.g-icon{font-size:18px;flex-shrink:0}
-.g-body strong{font-size:13px}
-.g-body p{margin-top:3px;line-height:1.5}
-.g-body .g-sub{font-size:10px;color:var(--mut);margin-top:4px;line-height:1.6}
-
-/* ══ REC ══ */
-#vRec{display:none;padding:12px}
-.rec-top{background:var(--sur);border-radius:14px;padding:14px;margin-bottom:12px}
-.rec-row{display:flex;align-items:center;gap:12px}
-.grec-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:13px;border-radius:12px;border:1px solid var(--bdr);background:var(--sur2);color:var(--txt);font-size:15px;font-weight:700;transition:all .2s}
-.grec-btn.on{border-color:var(--danger);background:#2d0000;color:var(--danger);animation:rec-pulse 1.4s infinite}
-@keyframes rec-pulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.4)}50%{box-shadow:0 0 0 8px rgba(239,68,68,0)}}
-.rec-dot{width:10px;height:10px;border-radius:50%;background:currentColor}
-.grec-tmr{font-family:monospace;font-size:22px;font-weight:700;color:var(--mut);min-width:60px;text-align:center}
-.grec-tmr.on{color:var(--danger)}
-.rec-ttl{font-size:11px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}
-.ri{background:var(--sur);border:1px solid var(--bdr);border-radius:12px;padding:12px;margin-bottom:8px}
-.ri-name{font-size:13px;font-weight:700;margin-bottom:2px}
-.ri-meta{font-family:monospace;font-size:11px;color:var(--mut);margin-bottom:8px}
-.ri-audio{width:100%;height:36px;border-radius:8px;display:block;margin-bottom:8px}
-.ri-dl{display:inline-flex;align-items:center;gap:5px;padding:7px 16px;border-radius:8px;border:1px solid var(--acc);color:var(--acc);font-size:12px;font-weight:700;text-decoration:none}
 </style>
 </head>
 <body>
+<!-- ═ L0: 마이크 ═ -->
+<div id="L0" class="L" style="align-items:center;justify-content:center;gap:13px;padding:30px 20px">
+  <div style="width:68px;height:68px;background:linear-gradient(135deg,var(--acc),var(--S));border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:34px;box-shadow:0 8px 30px rgba(129,140,248,.35)">🎼</div>
+  <div style="font-size:21px;font-weight:800;text-align:center">Choir Analyzer</div>
+  <div style="color:var(--mut);font-size:13px;text-align:center;line-height:1.6">스피커 음향 실시간 분석<br>SATB 파트별 M32 가이드</div>
+  <div id="errBox" style="width:100%;max-width:300px;background:#1e0f0f;border:1px solid #7f1d1d;border-radius:9px;padding:11px;color:#fca5a5;font-size:12px;line-height:1.7;display:none"></div>
+  <button id="micBtn" class="bigbtn" style="background:linear-gradient(135deg,var(--acc),var(--S));max-width:290px">🎤 마이크 허용 후 시작</button>
+  <div style="max-width:290px;background:var(--sur2);border:1px solid var(--bdr);border-radius:11px;padding:12px;font-size:11px;line-height:1.8;color:var(--mut)"><b style="color:var(--txt)">사용 방법</b><br>① 마이크 허용 → ② 프로젝트 선택 → ③ 전체/파트 분석 → ④ 시작/종료</div>
+</div>
 
-<!-- ══ SCREEN 1: 시작 ══ -->
-<div id="scStart">
-  <div class="ov-logo">🎼</div>
-  <div class="ov-title">Choir Analyzer</div>
-  <div class="ov-sub">SATB 실시간 음향 분석<br>Midas M32 페이더 가이드</div>
-  <div class="err-msg" id="errMsg"></div>
-  <button class="mode-sel-btn" id="startBtn" style="max-width:320px">🎤 마이크 권한 허용 후 시작</button>
-  <div style="width:100%;max-width:340px;background:var(--sur2);border:1px solid var(--bdr);border-radius:14px;padding:14px;font-size:12px;line-height:1.9">
-    <div style="font-size:13px;font-weight:700;margin-bottom:6px">🌐 GitHub Pages 배포</div>
-    <div style="color:var(--mut)">① 파일 5개 → 저장소 업로드</div>
-    <div style="color:var(--mut)">② Settings → Pages → main → Save</div>
-    <div style="font-weight:700;margin-top:4px">→ https://[아이디].github.io/[저장소]/</div>
-    <div style="color:var(--mut);margin-top:4px">③ Safari/Chrome → 홈 화면에 추가</div>
+<!-- ═ L1: 프로젝트 목록 ═ -->
+<div id="L1" class="L off">
+  <div class="Lhd">
+    <div style="width:28px;height:28px;background:linear-gradient(135deg,var(--acc),var(--S));border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">🎼</div>
+    <div class="Ltitle">프로젝트</div>
+    <button style="background:var(--acc);border:none;border-radius:7px;padding:5px 13px;color:#fff;font-size:13px;font-weight:700;cursor:pointer" onclick="gL2()">+ 새로 만들기</button>
+  </div>
+  <div class="Lscroll">
+    <div class="sec">예배 프로젝트</div>
+    <div id="projList"></div>
+    <button class="addbtn" onclick="gL2()">＋ 새 프로젝트 추가</button>
   </div>
 </div>
 
-<!-- ══ SCREEN 2: 분석 모드 선택 ══ -->
-<div id="scMode">
-  <div style="padding:0 0 14px">
-    <div style="font-size:20px;font-weight:800;margin-bottom:6px">분석 모드 선택</div>
-    <div style="font-size:12px;color:var(--mut);line-height:1.6">
-      마이크 구성과 환경에 맞는 모드를 선택하세요.<br>나중에 헤더에서 언제든 변경할 수 있습니다.
+<!-- ═ L2: 새 프로젝트 ═ -->
+<div id="L2" class="L off">
+  <div class="Lhd"><button class="back" onclick="gL1()">← 뒤로</button><div class="Ltitle">새 프로젝트</div></div>
+  <div class="Lscroll">
+    <div class="sec">예배 유형</div>
+    <div id="feastGrid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin-bottom:10px"></div>
+    <div class="sec" style="margin-top:8px">시간대</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:4px">
+      <div class="tyc on" id="tod_am" onclick="sTod('am')"><div class="ti">🌅</div><div class="tn">오전</div></div>
+      <div class="tyc"    id="tod_pm" onclick="sTod('pm')"><div class="ti">🌇</div><div class="tn">오후</div></div>
     </div>
-  </div>
-
-  <!-- 모드 1 -->
-  <div class="mode-card" id="mc1" onclick="selectMode(1)">
-    <div class="mc-top">
-      <div class="mc-icon" style="background:#0d1b2a">🎚️</div>
-      <div class="mc-info">
-        <div class="mc-name">모드 1 — M32 채널 직접 연결</div>
-        <div class="mc-desc">M32의 4개 출력을 각각 별도 마이크/오디오 인터페이스로 연결. 파트별 실제 신호를 독립 분석.</div>
-        <span class="mc-tag tag-easy">가장 정확</span>
-        <span class="mc-tag" style="background:#1a1a2e;color:var(--acc);margin-left:4px">하드웨어 필요</span>
-      </div>
-    </div>
-    <div class="mc-pros">
-      <div class="mc-pro pro"><span class="pi">✅</span>파트별 완전 독립 신호 분석</div>
-      <div class="mc-pro pro"><span class="pi">✅</span>dBFS 수치가 실제 M32 채널과 1:1 대응</div>
-      <div class="mc-pro con"><span class="pi">⚠️</span>오디오 인터페이스 4채널 이상 필요</div>
-      <div class="mc-pro con"><span class="pi">⚠️</span>채널 라벨을 수동으로 S/A/T/B 지정</div>
-    </div>
-  </div>
-
-  <!-- 모드 2 -->
-  <div class="mode-card" id="mc2" onclick="selectMode(2)">
-    <div class="mc-top">
-      <div class="mc-icon" style="background:#1c1700">🎵</div>
-      <div class="mc-info">
-        <div class="mc-name">모드 2 — 주파수 대역 자동 분리</div>
-        <div class="mc-desc">마이크 1개로 전체 소리를 받아 주파수 대역별로 S/A/T/B를 소프트웨어로 분리.</div>
-        <span class="mc-tag tag-mid">마이크 1개</span>
-        <span class="mc-tag" style="background:#1a1a2e;color:var(--acc);margin-left:4px">중간 정확도</span>
-      </div>
-    </div>
-    <div class="mc-pros">
-      <div class="mc-pro pro"><span class="pi">✅</span>마이크 1개로 즉시 사용 가능</div>
-      <div class="mc-pro pro"><span class="pi">✅</span>추가 장비 불필요</div>
-      <div class="mc-pro con"><span class="pi">⚠️</span>파트 주파수가 겹치면 혼선 발생</div>
-      <div class="mc-pro con"><span class="pi">⚠️</span>독창·솔로보다 합창 전체음에 적합</div>
-    </div>
-  </div>
-
-  <!-- 모드 3 -->
-  <div class="mode-card" id="mc3" onclick="selectMode(3)">
-    <div class="mc-top">
-      <div class="mc-icon" style="background:#0f1f0f">🤖</div>
-      <div class="mc-info">
-        <div class="mc-name">모드 3 — AI 다중 피치 감지</div>
-        <div class="mc-desc">TensorFlow.js 기반 ML 모델로 화음 속 각 음을 분리하여 S/A/T/B에 자동 배정.</div>
-        <span class="mc-tag tag-hard">실험적</span>
-        <span class="mc-tag" style="background:#052e16;color:var(--ok);margin-left:4px">가장 스마트</span>
-      </div>
-    </div>
-    <div class="mc-pros">
-      <div class="mc-pro pro"><span class="pi">✅</span>마이크 1개로 화음 내 각 음 분리</div>
-      <div class="mc-pro pro"><span class="pi">✅</span>악보 없이 파트 자동 추정</div>
-      <div class="mc-pro con"><span class="pi">⚠️</span>초기 모델 로딩 5~10초 소요</div>
-      <div class="mc-pro con"><span class="pi">⚠️</span>4성부 동시 발음 시 정확도 제한</div>
-    </div>
-  </div>
-
-  <button class="mode-sel-btn" id="modeConfirmBtn" disabled onclick="confirmMode()">
-    모드를 선택해주세요
-  </button>
-</div>
-
-<!-- ══ MAIN APP ══ -->
-<div id="hdr" style="display:none">
-  <div class="hdr-icon">🎼</div>
-  <div class="hdr-info">
-    <div class="hdr-title">Choir Analyzer</div>
-    <div class="hdr-sub" id="hdrSub">FALCON · SATB</div>
-  </div>
-  <div class="hdr-right">
-    <div class="mode-badge" id="modeBadge" onclick="showModeSelect()">모드—</div>
-    <div class="hdr-pill">
-      <div class="hdot" id="hdot"></div>
-      <span id="hstat">대기</span>
-    </div>
+    <div class="sec">프로젝트 이름 (선택)</div><input class="inp" id="projNameInp" placeholder="예: 2025년 성탄 오전">
+    <div class="sec">메모 (선택)</div><textarea class="inp" rows="3" id="projMemoInp" placeholder="지휘자, 반주자 등"></textarea>
+    <button class="bigbtn" style="background:linear-gradient(135deg,var(--acc),var(--S))" onclick="createProj()">프로젝트 생성 →</button>
   </div>
 </div>
 
-<div id="tabs" style="display:none">
-  <div class="tab on" data-v="ch"><span class="ti">🎙</span>채널</div>
-  <div class="tab"    data-v="sp"><span class="ti">📊</span>스펙트럼</div>
-  <div class="tab"    data-v="gu"><span class="ti">💡</span>가이드</div>
-  <div class="tab"    data-v="re"><span class="ti">⏺</span>녹음</div>
+<!-- ═ L3: 프로젝트 상세 ═ -->
+<div id="L3" class="L off">
+  <div class="Lhd">
+    <button class="back" onclick="gL1()">← 목록</button>
+    <div class="Ltitle" id="L3title"></div>
+    <button style="background:transparent;border:none;color:var(--danger);font-size:12px;font-weight:700;cursor:pointer" onclick="deleteProj()">삭제</button>
+  </div>
+  <div class="projbanner" id="projBanner"></div>
+  <div class="Lscroll" style="padding-top:0">
+    <div class="sec">분석 시작</div>
+    <div class="aselgrid">
+      <div class="aselc" onclick="gL5()"><div class="ai">🎵</div><div class="an">전체 합창</div><div class="as">전체 음량·화음·밸런스</div></div>
+      <div class="aselc" onclick="gL6()"><div class="ai">🎙</div><div class="an">파트 분석</div><div class="as">파트별 개별 분석</div></div>
+    </div>
+    <div class="sec">파트별 목표 레벨</div>
+    <div class="tgtgrid" id="tgtGrid"></div>
+    <div class="sec" style="display:flex;align-items:center;justify-content:space-between"><span>악보</span><button onclick="gL7()" style="background:var(--acc);border:none;border-radius:6px;padding:3px 11px;color:#fff;font-size:11px;font-weight:700;cursor:pointer">+ 악보 추가</button></div>
+    <div id="scoreList3"></div>
+    <div class="sec">분석 히스토리</div><div id="histList"></div>
+    <div class="sec">녹음 파일</div><div id="recList3"></div>
+  </div>
 </div>
 
-<div id="main" style="display:none">
-
-  <!-- 채널 탭 -->
-  <div id="vCh">
-    <div class="mode-banner" id="modeBanner"></div>
-    <div class="ch-grid" id="chGrid"></div>
-    <div style="padding:10px 10px 0">
-      <div style="font-size:10px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">화음 분석</div>
-      <div class="harmony" id="harmonyPanel"><div style="font-size:11px;color:var(--mut)">분석 대기 중…</div></div>
-    </div>
+<!-- ═ L5: 전체 합창 ═ -->
+<div id="L5" class="L off">
+  <div class="Lhd"><button class="back" onclick="sab5()">← 종료</button><div class="Ltitle" id="L5title">전체 합창</div></div>
+  <div class="abar"><div class="adot" id="dot5"></div><div class="atxt" id="stat5">분석 대기 중</div><div class="atmr" id="tmr5">00:00</div></div>
+  <div class="ssrow">
+    <button class="ssstart" id="sb5s" onclick="stAnal5()">▶ 분석 시작</button>
+    <button class="ssstop" id="sb5x" onclick="spAnal5()" disabled>■ 종료</button>
+    <button class="recibtn" id="rb5" onclick="tgRec()"><span id="rd5" style="width:9px;height:9px;border-radius:50%;background:currentColor"></span>REC</button>
   </div>
-
-  <!-- 스펙트럼 탭 -->
-  <div id="vSpec">
-    <canvas id="specCv"></canvas>
-    <div class="leg" id="leg"></div>
-    <div class="bal-card">
-      <div class="bal-ttl">밸런스 비율</div>
-      <div id="balRows"></div>
-    </div>
-  </div>
-
-  <!-- 가이드 탭 -->
-  <div id="vGuide">
-    <div class="dbfs-info">
-      <h4>📖 dBFS 수치 읽는 법</h4>
-      <p>앱 수치는 <strong>dBFS</strong> (디지털 풀스케일)입니다. <strong>0dBFS = 디지털 최대값</strong>.</p>
-      <table class="dbfs-table">
-        <tr><th>앱 수치</th><th>M32 조작</th><th>의미</th></tr>
-        <tr><td style="color:#f97316">−30 이하</td><td>페이더 ↑ 올리기</td><td>너무 작음</td></tr>
-        <tr><td style="color:var(--ok)">−20 ~ −12</td><td>현재 유지</td><td>적정</td></tr>
-        <tr><td style="color:var(--danger)">−6 이상</td><td>페이더 ↓ 내리기</td><td>클리핑 위험</td></tr>
-      </table>
-      <p style="margin-top:8px;color:var(--mut);font-size:10px">※ 가이드 수치는 <strong>상대 증감</strong>입니다. "S +4dB" = S채널 페이더를 현재 위치에서 4 위로.</p>
-    </div>
-    <div class="g-ttl">M32 실시간 가이드</div>
-    <div id="gList"></div>
-  </div>
-
-  <!-- 녹음 탭 -->
-  <div id="vRec">
-    <div class="rec-top">
-      <div class="rec-row">
-        <button class="grec-btn" id="gBtn"><span class="rec-dot"></span>전체 녹음</button>
-        <div class="grec-tmr" id="gTmr">00:00</div>
+  <div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:calc(var(--safe-bot)+10px)">
+    <div style="padding:11px 13px">
+      <div style="background:var(--sur);border-radius:11px;padding:15px;display:flex;flex-direction:column;gap:10px">
+        <div style="font-size:10px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.5px">전체 음량</div>
+        <div id="fdb5" style="font-family:Courier New,monospace;font-size:56px;font-weight:800;color:var(--acc);text-align:center;line-height:1">—</div>
+        <div style="font-size:12px;color:var(--mut);text-align:center">dBFS</div>
+        <div style="height:20px;background:var(--sur2);border-radius:7px;overflow:hidden"><div id="ffill5" style="height:100%;border-radius:7px;width:0%;transition:width .05s"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--mut);font-family:monospace"><span>−60</span><span>−48</span><span>−36</span><span>−24</span><span>−12</span><span>0</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:11px"><span style="color:var(--mut)">피크</span><span id="fpk5" style="font-family:monospace;font-weight:700">—</span></div>
       </div>
     </div>
-    <div class="rec-ttl">저장된 녹음</div>
-    <div id="rList"><div style="font-size:12px;color:var(--mut)">녹음 없음</div></div>
+    <div style="padding:0 13px 9px"><div style="font-size:10px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">파트 에너지 비율</div><div id="balCard5" style="background:var(--sur);border-radius:9px;padding:11px;display:flex;flex-direction:column;gap:7px"></div></div>
+    <div style="padding:0 13px 9px"><div style="font-size:10px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">화음 분석</div><div class="hcard" id="harm5"><div style="font-size:11px;color:var(--mut)">분석 시작 후 표시</div></div></div>
+    <div style="padding:0 13px 13px"><div style="font-size:10px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">주파수 스펙트럼</div><canvas id="cv5" style="width:100%;height:135px;border-radius:8px;display:block"></canvas></div>
+  </div>
+</div>
+
+<!-- ═ L6: 파트 분석 ═ -->
+<div id="L6" class="L off">
+  <div class="Lhd"><button class="back" onclick="sab6()">← 종료</button><div class="Ltitle">파트 분석</div></div>
+  <div class="abar"><div class="adot" id="dot6"></div><div class="atxt" id="stat6">분석 대기 중</div><div class="atmr" id="tmr6">00:00</div></div>
+  <div class="ssrow">
+    <button class="ssstart" id="sb6s" onclick="stAnal6()">▶ 분석 시작</button>
+    <button class="ssstop" id="sb6x" onclick="spAnal6()" disabled>■ 종료</button>
+    <button class="recibtn" id="rb6" onclick="tgRec()"><span id="rd6" style="width:9px;height:9px;border-radius:50%;background:currentColor"></span>REC</button>
+  </div>
+  <div class="pselbar" id="pselbar"><button class="pselall" onclick="selAll()">전체</button></div>
+  <div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:calc(var(--safe-bot)+10px)">
+    <div class="chgrid" id="chGrid"></div>
+    <div style="flex-shrink:0;border-top:1px solid var(--bdr);max-height:220px;overflow-y:auto">
+      <div class="pbtabs">
+        <div class="pbtab on" data-pt="gu" onclick="setPbt('gu')">💡 가이드</div>
+        <div class="pbtab"    data-pt="ha" onclick="setPbt('ha')">🎵 화음</div>
+        <div class="pbtab"    data-pt="sp" onclick="setPbt('sp')">📊 스펙트럼</div>
+      </div>
+      <div class="pbcontent">
+        <div id="pb-gu"></div>
+        <div id="pb-ha" style="display:none"></div>
+        <div id="pb-sp" style="display:none"><canvas id="cv6" style="width:100%;height:105px;border-radius:7px;display:block"></canvas></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═ L7: 악보 ═ -->
+<div id="L7" class="L off">
+  <div class="Lhd">
+    <button class="back" onclick="backL7()">← 뒤로</button>
+    <div class="Ltitle">악보 분석</div>
+    <button onclick="document.getElementById('scFileInp').click()" style="background:var(--acc);border:none;border-radius:7px;padding:5px 11px;color:#fff;font-size:12px;font-weight:700;cursor:pointer">+ 업로드</button>
+    <input type="file" id="scFileInp" accept="image/*" onchange="handleScoreUpload(this)">
+  </div>
+  <div class="Lscroll">
+    <div class="suzzone" id="suzZone" onclick="document.getElementById('scFileInp').click()">
+      <div style="font-size:34px">📄</div>
+      <div style="font-size:13px;font-weight:800">악보 이미지 업로드</div>
+      <div style="font-size:11px;color:var(--mut);line-height:1.6">jpg, png 선택 → AI가 SATB 파트별 음역·주요음 분석</div>
+    </div>
+    <img id="scorePreview" alt="악보">
+    <div class="ailod" id="aiLod"><div class="spin"></div><div style="font-weight:700;color:var(--txt)">AI 악보 분석 중…</div></div>
+    <div class="scres" id="scRes">
+      <div class="scresttl" id="scResTitle">🎼 악보 분석 결과</div>
+      <div id="scResContent"></div>
+      <div style="background:#1c1700;border:1px solid #854d0e;border-radius:8px;padding:9px;font-size:11px;color:#fcd34d;margin-top:9px">⚠️ AI 분석은 이미지 품질에 따라 정확도가 달라집니다.</div>
+      <button class="applybtn" onclick="applyScore()">✅ 이 악보를 프로젝트에 적용</button>
+    </div>
+    <div id="scErr" style="display:none;background:#1e0f0f;border:1px solid #991b1b;border-radius:9px;padding:11px;margin-top:9px;font-size:12px;color:#fca5a5;line-height:1.7"></div>
+    <div class="sec">이 프로젝트의 악보</div>
+    <div id="scListL7"></div>
+  </div>
+</div>
+
+<!-- ═══════ DESKTOP 1920×1080 ═══════ -->
+<div id="DSK">
+
+  <!-- ── Header 52px ── -->
+  <div id="DH">
+    <div class="dh-logo">🎼</div>
+    <div class="dh-appnm">FALCON Choir Analyzer</div>
+    <div class="dh-divider"></div>
+
+    <!-- 프로젝트 선택 -->
+    <div class="dh-proj" onclick="openProjModal()">
+      <div class="dh-proj-ic" id="dhProjIc">📁</div>
+      <div>
+        <div class="dh-proj-nm" id="dhProjNm">프로젝트 선택 ▾</div>
+        <div class="dh-proj-sub" id="dhProjSub">탭하여 프로젝트 변경</div>
+      </div>
+    </div>
+
+    <!-- 적용 중인 악보 -->
+    <div id="dhScoreNm" class="dh-score-nm" style="display:none" onclick="gL7()">악보 없음</div>
+
+    <div class="dh-divider"></div>
+
+    <!-- 모드 토글 -->
+    <div class="dh-modes">
+      <div class="dh-mode on" id="damFull" onclick="setDM('full')">🎵 전체 합창</div>
+      <div class="dh-mode"    id="damPart" onclick="setDM('part')">🎙 파트 분석</div>
+    </div>
+
+    <div class="dh-divider"></div>
+
+    <!-- 컨트롤 -->
+    <div class="dh-ctrl">
+      <div class="ctrl-dot" id="dkCtrlDot"></div>
+      <button class="btn-start" id="dkBtnStart" onclick="dskStart()">▶ 분석 시작</button>
+      <button class="btn-stop"  id="dkBtnStop"  onclick="dskStop()" disabled>■ 분석 종료</button>
+      <button class="btn-rec"   id="dkBtnRec"   onclick="tgRec()">
+        <span id="dkRecDot" style="width:9px;height:9px;border-radius:50%;background:currentColor"></span>
+        REC
+      </button>
+      <div class="ctrl-timer" id="dkTimer">00:00</div>
+    </div>
+
+    <!-- 파트 선택 (파트 모드 시 표시) -->
+    <div class="dh-divider" id="dkPSelDiv" style="display:none"></div>
+    <div class="dh-psel" id="dkPartSelRow" style="display:none">
+      <!-- JS로 생성 -->
+    </div>
+
+    <div class="dh-divider"></div>
+    <div class="dh-status">
+      <span id="dkStat">대기 중 — 프로젝트를 선택하세요</span>
+    </div>
   </div>
 
+  <!-- ── Body ── -->
+  <div id="DB">
+
+    <!-- ── Sidebar 280px ── -->
+    <div id="DSB">
+      <!-- 프로젝트 목록 -->
+      <div class="sb-sec">
+        <div class="sb-ttl">예배 프로젝트 <button onclick="gL2()">+ 새로</button></div>
+      </div>
+      <div class="sb-pl" id="sbpl"></div>
+
+      <!-- 악보 -->
+      <div class="sb-sec">
+        <div class="sb-ttl">악보 <button onclick="gL7()">+ 추가</button></div>
+        <div class="sb-sl" id="sbsl"></div>
+      </div>
+
+      <!-- 파트 목표 레벨 -->
+      <div class="sb-sec">
+        <div class="sb-ttl">파트 목표 레벨</div>
+        <div class="sb-tgt" id="sbtl" style="padding-top:4px"></div>
+      </div>
+
+      <!-- M32 가이드 안내 -->
+      <div class="sb-sec" style="font-size:10px;line-height:1.8;color:var(--mut)">
+        <b style="color:var(--txt)">dBFS 기준</b><br>
+        <span style="color:#f97316">−30 이하</span> → 페이더 올리기<br>
+        <span style="color:var(--ok)">−20 ~ −12</span> → 적정 범위<br>
+        <span style="color:var(--danger)">−6 이상</span> → 페이더 낮추기<br>
+        <span style="color:var(--mut);font-size:9px">※ 조정값은 상대 증감입니다</span>
+      </div>
+    </div>
+
+    <!-- ── Main: 채널 + 오른쪽 패널 ── -->
+    <div id="DM">
+
+      <!-- 채널 영역 -->
+      <div id="DCH">
+
+        <!-- 전체 합창 모드 -->
+        <div id="dkFullArea">
+          <div class="dk-full-vu-card">
+            <div style="font-size:11px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.6px">전체 음량 (스피커 PA 출력)</div>
+            <div class="dk-full-db" id="dkFdb">—</div>
+            <div class="dk-full-unit">dBFS</div>
+            <div class="dk-full-bar"><div class="dk-full-fill" id="dkFFill" style="width:0%"></div></div>
+            <div class="dk-full-marks"><span>−60</span><span>−54</span><span>−48</span><span>−42</span><span>−36</span><span>−30</span><span>−24</span><span>−18</span><span>−12</span><span>−6</span><span>0</span></div>
+            <div class="dk-full-peak-row">
+              <span style="color:var(--mut)">피크 홀드</span>
+              <span id="dkFPk" style="font-family:monospace;font-weight:700">—</span>
+            </div>
+          </div>
+
+          <!-- 파트별 에너지 비율 (전체 모드에서도 표시) -->
+          <div style="background:var(--sur);border-radius:12px;padding:20px;border:1px solid var(--bdr)">
+            <div style="font-size:11px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px">파트별 에너지 비율 (주파수 대역 기준)</div>
+            <div id="dkBalFull" style="display:flex;flex-direction:column;gap:12px"></div>
+          </div>
+        </div>
+
+        <!-- 파트 분석 모드 (4채널 그리드) -->
+        <div id="dkPartArea" style="display:none">
+          <!-- JS로 생성 -->
+        </div>
+
+      </div>
+
+      <!-- ── Right Panel 360px ── -->
+      <div id="DRP">
+
+        <!-- 파트 에너지 비율 -->
+        <div class="rp-sec">
+          <div class="rp-ttl">파트 에너지 비율</div>
+          <div id="dkBal"></div>
+        </div>
+
+        <!-- 화음 분석 -->
+        <div class="rp-sec">
+          <div class="rp-ttl">화음 분석</div>
+          <div id="dkHarm"><div style="font-size:12px;color:var(--mut)">분석 시작 후 표시됩니다</div></div>
+        </div>
+
+        <!-- M32 가이드 -->
+        <div class="rp-sec" style="flex:1;min-height:0;overflow-y:auto">
+          <div class="rp-ttl">M32 페이더 가이드</div>
+          <div id="dkGuide"><div style="font-size:12px;color:var(--mut)">분석 시작 후 표시됩니다</div></div>
+        </div>
+
+        <!-- 주파수 스펙트럼 -->
+        <div class="rp-sec">
+          <div class="rp-ttl">주파수 스펙트럼</div>
+          <canvas id="dkSpecCv" style="height:180px"></canvas>
+          <div class="rp-spec-leg" id="dkSpecLeg"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 프로젝트 모달 -->
+<div id="projModal">
+  <div class="projmodalbox">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:13px">
+      <div style="font-size:16px;font-weight:800">프로젝트 선택</div>
+      <button onclick="closeProjModal()" style="background:var(--sur2);border:1px solid var(--bdr);border-radius:7px;padding:5px 11px;color:var(--txt);font-size:13px;font-weight:600;cursor:pointer">닫기</button>
+    </div>
+    <div id="projModalList"></div>
+    <button class="bigbtn" style="background:linear-gradient(135deg,var(--acc),var(--S))" onclick="closeProjModal();gL2()">+ 새 프로젝트</button>
+  </div>
+</div>
+
+<!-- 세션 메모 모달 -->
+<div id="sessModal">
+  <div class="sessbox">
+    <h3>📝 분석 세션 메모</h3>
+    <textarea id="sessNote" placeholder="이번 분석 특이사항 (예: Bass Flat 경향, Soprano 레벨 과다)"></textarea>
+    <div class="sessbts">
+      <button class="sessskip" onclick="closeSess('')">건너뛰기</button>
+      <button class="sesssave" onclick="closeSess(document.getElementById('sessNote').value)">저장</button>
+    </div>
+  </div>
 </div>
 
 <script>
+
+/* ═ DESKTOP 1920×1080 ═ */
+function setDM(m){
+  dskMode=m;
+  document.getElementById('damFull').classList.toggle('on',m==='full');
+  document.getElementById('damPart').classList.toggle('on',m==='part');
+  document.getElementById('dkFullArea').style.display=m==='full'?'flex':'none';
+  document.getElementById('dkPartArea').style.display=m==='part'?'grid':'none';
+  document.getElementById('dkPartSelRow').style.display=m==='part'?'flex':'none';
+  if(m==='part'){bldDChGrid();bldDPSel();}
+  bldBal();bldLeg();rszCv('dkSpecCv');
+}
+function rdPL(){
+  const el=document.getElementById('sbpl');
+  el.innerHTML=projects.map(p=>{const ti=TYPES[p.type]||TYPES.sa;return `<div class="sb-pi${p.id===curPid?' act':''}" onclick="gL3('${p.id}')"><div class="sb-pi-ic">${ti.ic}</div><div><div class="sb-pi-nm">${p.name}</div><div class="sb-pi-sub">${ti.nm}${p.feast?' · '+p.feast:''}</div></div></div>`;}).join('')||'<div style="font-size:11px;color:var(--mut);padding:7px">프로젝트 없음</div>';
+}
+function rdSL(){
+  const p=gP(curPid),el=document.getElementById('sbsl');
+  if(!p||!(p.scores||[]).length){el.innerHTML='<div style="font-size:11px;color:var(--mut);padding:4px 7px">악보 없음</div>';return;}
+  el.innerHTML=p.scores.map((s,i)=>`<div class="sb-si${s.active?' asc':''}" onclick="dkApplySc(${i})">${s.thumb?`<img class="sb-sithumb" src="${s.thumb}" alt="">`:`<div class="sb-sithumb">📄</div>`}<div><div class="sb-sinm">${s.name}</div><div class="sb-sisub">${s.active?'✅ 적용중':'탭하여 적용'}</div></div></div>`).join('');
+}
+function dkApplySc(i){const p=gP(curPid);if(!p)return;p.scores.forEach((s,idx)=>s.active=idx===i);const s=p.scores[i];if(s?.result){scoreAnalysis=s.result;['S','A','T','B'].forEach(id=>{if(s.result[id]?.target_db){tgts[id]=s.result[id].target_db;p.targets[id]=s.result[id].target_db;}});sDB();rdSL();rdTL();// Update header score name
+const hn=document.getElementById('dhScoreNm');if(hn){hn.textContent='🎼 '+s.name;hn.style.display='flex';}alert(`✅ "${s.name}" 적용됨`);}}
+function rdTL(){
+  const el=document.getElementById('sbtl');
+  el.innerHTML=PARTS.map(pp=>`<div class="sb-trow"><span class="sid" style="color:${pp.color}">${pp.id}</span><input type="range" min="-40" max="-6" step="1" value="${tgts[pp.id]}" style="flex:1;height:3px;accent-color:${pp.color}" oninput="tgts['${pp.id}']=+this.value;svTgt('${pp.id}',+this.value);document.getElementById('dktv_${pp.id}').textContent=this.value+'dB'"><span id="dktv_${pp.id}">${tgts[pp.id]}dB</span></div>`).join('');
+}
+function bldDChGrid(){
+  const grid=document.getElementById('dkPartArea');
+  grid.innerHTML=PARTS.map(pp=>`
+<div class="dk-ch${activeParts.has(pp.id)?'':' off'}" id="dch_${pp.id}">
+  <div class="dk-ch-top">
+    <div><div class="dk-ch-id" style="color:${pp.color}">${pp.id}</div><div class="dk-ch-nm">${pp.name}</div></div>
+    <div class="dk-ch-dbb"><div class="dk-ch-db" id="ddb_${pp.id}" style="color:${pp.color}">—</div><div class="dk-ch-u">dBFS</div><div class="dk-ch-pk" id="dpk_${pp.id}">pk —</div></div>
+  </div>
+  <div class="dk-vu">
+    <div class="dk-vu-t"><div class="dk-vu-b" id="dvl_${pp.id}" style="background:${pp.color};height:0"></div></div>
+    <div class="dk-vu-t"><div class="dk-vu-b" id="dvr_${pp.id}" style="background:${pp.color};height:0"></div></div>
+  </div>
+  <div class="dk-pit">
+    <span class="dk-pit-n" id="dnt_${pp.id}" style="color:${pp.color}">—</span>
+    <div class="dk-pit-t"><div class="dk-pit-nd" id="dnd_${pp.id}" style="background:${pp.color};left:50%"></div></div>
+    <span class="dk-pit-c it" id="dct_${pp.id}">0¢</span>
+  </div>
+  <div class="dk-ps" id="dps_${pp.id}">
+    <div class="dk-psi dk-psf">♭0%</div><div class="dk-psi dk-pso">●100%</div><div class="dk-psi dk-pss">♯0%</div>
+  </div>
+  <div class="dk-bdg idle" id="dbdg_${pp.id}"><span>⏸</span>${activeParts.has(pp.id)?'신호 없음':'비활성'}</div>
+  <div class="dk-tsl"><label>목표</label><input type="range" min="-40" max="-6" step="1" value="${tgts[pp.id]}" style="accent-color:${pp.color}" oninput="tgts['${pp.id}']=+this.value;svTgt('${pp.id}',+this.value);document.getElementById('dktv2_${pp.id}').textContent=this.value+'dB'"><span id="dktv2_${pp.id}">${tgts[pp.id]}dB</span></div>
+</div>`).join('');
+}
+function bldDPSel(){
+  const el=document.getElementById('dkPartSelRow');
+  el.innerHTML='<span style="font-size:12px;color:var(--mut);font-weight:600">파트 선택:</span>'+PARTS.map(pp=>`<button class="dh-psel-btn${activeParts.has(pp.id)?' on':''}" id="dpb_${pp.id}" style="color:${pp.color};${activeParts.has(pp.id)?'border-color:'+pp.color:''}" onclick="tgDP('${pp.id}')">${pp.id} ${pp.name}</button>`).join('');
+}
+function tgDP(id){if(activeParts.has(id)){if(activeParts.size===1){alert('최소 1개');return;}activeParts.delete(id);}else activeParts.add(id);bldDChGrid();bldDPSel();bldBal();bldLeg();}
+function bldBalFull(){
+  document.getElementById('dkBalFull').innerHTML=PARTS.map(pp=>`<div class="rp-bal-row"><span class="rp-bal-id" style="color:${pp.color};font-size:14px;font-weight:900">${pp.id}<span style="font-size:10px;font-weight:400;color:var(--mut);margin-left:5px">${pp.name}</span></span><div class="rp-bal-trk" style="height:14px"><div class="rp-bal-idl" style="left:${pp.ideal}%"></div><div class="rp-bal-fl" id="dblF_${pp.id}" style="background:${pp.color};width:0%"></div></div><span class="rp-bal-pct" id="dbpF_${pp.id}" style="font-size:13px">0%</span></div>`).join('');
+}
+function bldBal(){
+  const pts=dskMode==='full'?PARTS:PARTS.filter(pp=>activeParts.has(pp.id));
+  document.getElementById('dkBal').innerHTML=pts.map(pp=>`<div class="rp-bal-row"><span class="rp-bal-id" style="color:${pp.color}">${pp.id}</span><div class="rp-bal-trk"><div class="rp-bal-idl" style="left:${pp.ideal}%"></div><div class="rp-bal-fl" id="dbl_${pp.id}" style="background:${pp.color};width:0%"></div></div><span class="rp-bal-pct" id="dbp_${pp.id}">0%</span></div>`).join('');
+}
+function bldLeg(){
+  const pts=dskMode==='full'?PARTS:PARTS.filter(pp=>activeParts.has(pp.id));
+  document.getElementById('dkSpecLeg').innerHTML=pts.map(pp=>`<div style="display:flex;align-items:center;gap:5px;font-size:12px"><div style="width:14px;height:2px;border-radius:1px;background:${pp.color}"></div><span style="color:${pp.color}">${pp.id} ${pp.name}</span></div>`).join('');
+}
+function dskStart(){
+  if(!curPid){alert('프로젝트를 먼저 선택하세요.');return;}
+  dkrun=true;dkst=Date.now();
+  document.getElementById('dkCtrlDot').className='ctrl-dot run';
+  document.getElementById('dkStat').textContent='분석 중 — 스피커를 향해 주세요';
+  document.getElementById('dkBtnStart').disabled=true;
+  document.getElementById('dkBtnStop').disabled=false;
+  document.getElementById('dkTimer').classList.add('on');
+  if(dskMode==='part'){PARTS.forEach(p=>{peaks[p.id]=-Infinity;pitchHist[p.id]=[];});}
+  else dkfpk=-Infinity;
+  dkiv=setInterval(()=>{document.getElementById('dkTimer').textContent=fmt(Math.floor((Date.now()-dkst)/1000));},1000);
+}
+function dskStop(){
+  const dur=dkst?fmt(Math.floor((Date.now()-dkst)/1000)):null;
+  clearInterval(dkiv);dkrun=false;
+  document.getElementById('dkCtrlDot').className='ctrl-dot stp';
+  document.getElementById('dkStat').textContent='분석 종료됨';
+  document.getElementById('dkBtnStart').disabled=false;
+  document.getElementById('dkBtnStop').disabled=true;
+  document.getElementById('dkTimer').classList.remove('on');
+  if(isRec)stpRec();
+  openSess(dskMode,[...activeParts],dur);
+}
+function openProjModal(){
+  document.getElementById('projModal').style.display='flex';
+  document.getElementById('projModalList').innerHTML=projects.map(p=>{const ti=TYPES[p.type]||TYPES.sa;return `<div class="projcard" onclick="gL3('${p.id}');closeProjModal()"><div class="pjic" style="background:${ti.co}22">${ti.ic}</div><div style="flex:1;min-width:0"><div class="pjnm">${p.name}</div><div class="pjmt">${ti.nm}</div></div><span style="color:var(--mut);font-size:17px">›</span></div>`;}).join('')||'<div class="empty"><div class="ei">📁</div><h3>프로젝트 없음</h3></div>';
+}
+function closeProjModal(){document.getElementById('projModal').style.display='none';}
+/* runFullDk / runPartDk with new element IDs */
+function runFullDk(){
+  const db=getRms(ANs['M']),pct=isFinite(db)?Math.max(0,Math.min(100,(db+60)/60*100)):0;
+  const vc=pct>83?'#ef4444':pct>66?'#f59e0b':'var(--acc)';
+  const dbEl=document.getElementById('dkFdb');if(dbEl){dbEl.textContent=isFinite(db)?db.toFixed(1):'—';dbEl.style.color=pct>83?'var(--danger)':pct>66?'var(--warn)':'var(--acc)';}
+  const fill=document.getElementById('dkFFill');if(fill){fill.style.width=pct+'%';fill.style.background=vc;}
+  if(isFinite(db)&&db>dkfpk)dkfpk=db;const pkEl=document.getElementById('dkFPk');if(pkEl)pkEl.textContent=isFinite(dkfpk)?dkfpk.toFixed(1)+' dBFS':'—';
+  const lin={};PARTS.forEach(pp=>{const f=getDomFreq(ANs[pp.id],pp.freqLo,pp.freqHi);if(f>20)freqNow[pp.id]=f;const pdb=getRms(ANs[pp.id]);lin[pp.id]=isFinite(pdb)?Math.pow(10,pdb/20):0;});
+  const tot=Object.values(lin).reduce((a,b)=>a+b,0)||1;
+  PARTS.forEach(pp=>{const bf=document.getElementById('dbl_'+pp.id),bp=document.getElementById('dbp_'+pp.id);if(bf)bf.style.width=(lin[pp.id]/tot*100)+'%';if(bp)bp.textContent=(lin[pp.id]/tot*100).toFixed(0)+'%';const bf2=document.getElementById('dblF_'+pp.id),bp2=document.getElementById('dbpF_'+pp.id);if(bf2)bf2.style.width=(lin[pp.id]/tot*100)+'%';if(bp2)bp2.textContent=(lin[pp.id]/tot*100).toFixed(0)+'%';});
+  runHarm('dkHarm',new Set(PARTS.map(p=>p.id)),true);
+  const ge=document.getElementById('dkGuide');if(ge)ge.innerHTML='<div style="font-size:12px;color:var(--mut)">파트 분석 모드에서 파트별 M32 가이드가 표시됩니다</div>';
+}
+function runPartDk(){
+  const lin={},dbs={};
+  PARTS.forEach(pp=>{
+    if(!activeParts.has(pp.id))return;
+    const an=ANs[pp.id],db=getRms(an),freq=getDomFreq(an,pp.freqLo,pp.freqHi),nt=f2note(freq);
+    const cl=clsLv(db,tgts[pp.id]),bd=BDG[cl];
+    dbs[pp.id]=db;lin[pp.id]=isFinite(db)?Math.pow(10,db/20):0;
+    if(isFinite(db)&&db>peaks[pp.id])peaks[pp.id]=db;if(freq>20)freqNow[pp.id]=freq;
+    const dbEl=document.getElementById('ddb_'+pp.id);if(dbEl)dbEl.textContent=isFinite(db)?db.toFixed(1):'—';
+    const pkEl=document.getElementById('dpk_'+pp.id);if(pkEl)pkEl.textContent=isFinite(peaks[pp.id])?'pk '+peaks[pp.id].toFixed(1):'pk —';
+    const pct=isFinite(db)?Math.max(0,Math.min(100,(db+60)/60*100)):0,vc=pct>83?'#ef4444':pct>66?'#f59e0b':pp.color;
+    ['dvl_','dvr_'].forEach((pfx,i)=>{const el=document.getElementById(pfx+pp.id);if(el){el.style.height=Math.max(0,pct-i*Math.random()*4)+'%';el.style.background=vc;}});
+    const ntEl=document.getElementById('dnt_'+pp.id);if(ntEl)ntEl.textContent=nt.name;
+    const ndEl=document.getElementById('dnd_'+pp.id);if(ndEl)ndEl.style.left=(50+nt.cents/2)+'%';
+    const ctEl=document.getElementById('dct_'+pp.id);if(ctEl){ctEl.textContent=(nt.cents>0?'+':'')+nt.cents+'¢';ctEl.className='dk-pit-c '+(nt.cents<-15?'fl':nt.cents>15?'sh':'it');}
+    if(isFinite(db)&&nt.name!=='—'){const hh=pitchHist[pp.id];hh.push(nt.cents);if(hh.length>300)hh.shift();const fN=hh.filter(c=>c<-15).length,sN=hh.filter(c=>c>15).length,t2=hh.length||1;const psEl=document.getElementById('dps_'+pp.id);if(psEl)psEl.innerHTML=`<div class="dk-psi dk-psf">♭${Math.round(fN/t2*100)}%</div><div class="dk-psi dk-pso">●${Math.round((t2-fN-sN)/t2*100)}%</div><div class="dk-psi dk-pss">♯${Math.round(sN/t2*100)}%</div>`;}
+    const bEl=document.getElementById('dbdg_'+pp.id);if(bEl){bEl.className='dk-bdg '+cl;bEl.style.cssText=`background:${bd.bg};border-color:${bd.bd};color:${bd.co}`;const diff=isFinite(db)?db-tgts[pp.id]:null;let adj='';if(cl==='low'&&diff!==null)adj=`<span class="dk-bdg-adj">+${Math.abs(Math.round(diff))}dB↑</span>`;if(cl==='high'&&diff!==null)adj=`<span class="dk-bdg-adj">−${Math.round(diff)}dB↓</span>`;bEl.innerHTML=`<span>${bd.ic}</span>${bd.tx}${adj}`;}
+  });
+  const tot=Object.values(lin).reduce((a,b)=>a+b,0)||1;
+  PARTS.filter(pp=>activeParts.has(pp.id)).forEach(pp=>{const bf=document.getElementById('dbl_'+pp.id),bp=document.getElementById('dbp_'+pp.id);if(bf)bf.style.width=(lin[pp.id]/tot*100)+'%';if(bp)bp.textContent=(lin[pp.id]/tot*100).toFixed(0)+'%';});
+  runHarm('dkHarm',activeParts,true);
+  const ge=document.getElementById('dkGuide');if(ge)ge.innerHTML=mkGuide(dbs,true)||'<div style="font-size:12px;color:var(--mut)">분석 시작 후 표시됩니다</div>';
+}
+
+
 if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
 
-/* ── 상수 ── */
+/* ═ 상수 ═ */
 const PARTS=[
   {id:'S',name:'Soprano',color:'#c084fc',target:-18,ideal:30,freqLo:250,freqHi:1100},
   {id:'A',name:'Alto',   color:'#34d399',target:-20,ideal:25,freqLo:175,freqHi:700},
@@ -365,431 +848,422 @@ const PARTS=[
   {id:'B',name:'Bass',   color:'#f97316',target:-22,ideal:23,freqLo:80, freqHi:350},
 ];
 const NOTES=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
-const BDG={
-  idle:{icon:'⏸',text:'신호 없음', bg:'#1c2330',bdr:'#30363d',col:'#7d8590'},
-  ok:  {icon:'✅',text:'적정 레벨',bg:'#052e16',bdr:'#166534',col:'#22c55e'},
-  warn:{icon:'⚠️',text:'미세 조정',bg:'#1c1700',bdr:'#713f12',col:'#f59e0b'},
-  low: {icon:'🔈',text:'올리세요', bg:'#1c0d06',bdr:'#9a3412',col:'#fb923c'},
-  high:{icon:'🔊',text:'낮추세요', bg:'#1e0f0f',bdr:'#991b1b',col:'#ef4444'},
-};
-const INT_NAME={0:'유니즌',1:'단2도',2:'장2도',3:'단3도',4:'장3도',5:'완전4도',6:'감5도',7:'완전5도',8:'단6도',9:'장6도',10:'단7도',11:'장7도',12:'옥타브'};
-const INT_Q={0:'good',3:'good',4:'good',5:'good',7:'good',8:'good',9:'good',12:'good',2:'warn',10:'warn',11:'warn',1:'bad',6:'bad'};
+const BDG={idle:{ic:'⏸',tx:'신호 없음',bg:'#1c2330',bd:'#30363d',co:'#7d8590'},ok:{ic:'✅',tx:'적정',bg:'#052e16',bd:'#166534',co:'#22c55e'},warn:{ic:'⚠️',tx:'미세조정',bg:'#1c1700',bd:'#713f12',co:'#f59e0b'},low:{ic:'🔈',tx:'올리기',bg:'#1c0d06',bd:'#9a3412',co:'#fb923c'},high:{ic:'🔊',tx:'낮추기',bg:'#1e0f0f',bd:'#991b1b',co:'#ef4444'}};
+const INT_N={0:'유니즌',1:'단2도',2:'장2도',3:'단3도',4:'장3도',5:'완전4도',6:'감5도',7:'완전5도',8:'단6도',9:'장6도',10:'단7도',11:'장7도',12:'옥타브'};
+const INT_Q={0:'g',3:'g',4:'g',5:'g',7:'g',8:'g',9:'g',12:'g',2:'w',10:'w',11:'w',1:'b',6:'b'};
+const FEAST_TYPES=[
+  {id:'sa',ic:'🕊️', nm:'안식일',   co:'#818cf8'},
+  {id:'pe',ic:'🌿', nm:'유월절',   co:'#34d399'},
+  {id:'ul',ic:'🫓', nm:'무교절',   co:'#6ee7b7'},
+  {id:'re',ic:'✝️', nm:'부활절',   co:'#f472b6'},
+  {id:'as',ic:'☁️', nm:'승천일',   co:'#7dd3fc'},
+  {id:'pn',ic:'🔥', nm:'오순절',   co:'#fb923c'},
+  {id:'tr',ic:'🎺', nm:'나팔절',   co:'#fbbf24'},
+  {id:'at',ic:'🕯️',nm:'대속죄일', co:'#c084fc'},
+  {id:'tb',ic:'🌿', nm:'초막절',   co:'#4ade80'},
+  {id:'lc',ic:'🎊', nm:'대회끝날', co:'#60a5fa'},
+];
+const TYPES={};
+FEAST_TYPES.forEach(f=>{
+  TYPES[f.id+'_am']={ic:f.ic,nm:f.nm+' 오전',co:f.co};
+  TYPES[f.id+'_pm']={ic:f.ic,nm:f.nm+' 오후',co:f.co};
+});
+function mkDefName(typeId,ds){
+  const f=FEAST_TYPES.find(x=>typeId.startsWith(x.id));
+  if(!f) return ds+' 예배';
+  return ds+' '+f.nm+(typeId.endsWith('_am')?' 오전':' 오후');
+}
 
-/* ── 상태 ── */
-let audioCtx, micStream;
-let currentMode = 0; // 1, 2, 3
+/* ═ 상태 ═ */
+let audioCtx,micStream;
+let projects=lDB(),curPid=null;
+let isMobile=window.innerWidth<900;
+let activeParts=new Set(PARTS.map(p=>p.id));
+let dskMode='full'; // full|part
 const ANs={};
 const peaks={S:-Infinity,A:-Infinity,T:-Infinity,B:-Infinity};
-const tgts={S:-18,A:-20,T:-21,B:-22};
 const pitchHist={S:[],A:[],T:[],B:[]};
 const freqNow={S:0,A:0,T:0,B:0};
-const HIST_LEN=300;
-let recs=[],gRec=null,gChunks=[],isRec=false,gStart=null,gInt=null;
-let view='ch',alive=false;
+let fpk5=-Infinity,dkfpk=-Infinity;
+const tgts={S:-18,A:-20,T:-21,B:-22};
+let scoreAnalysis=null;
+let a5run=false,a5st=null,a5iv=null;
+let a6run=false,a6st=null,a6iv=null;
+let dkrun=false,dkst=null,dkiv=null;
+let gRec=null,gChunks=[],isRec=false,gRecSt=null;
+let loopOn=false,pbTab='gu',sessData=null,scIdx=null;
+let curL='L0';
 
-/* ════════════════════════
-   SCREEN 1 — 마이크 시작
-════════════════════════ */
-document.getElementById('startBtn').addEventListener('click', async ()=>{
-  try {
+/* ═ DB ═ */
+function lDB(){try{return JSON.parse(localStorage.getItem('choirDB')||'[]');}catch(e){return[];}}
+function sDB(){const d=projects.map(p=>({...p,recs:(p.recs||[]).map(r=>({...r,url:null}))}));try{localStorage.setItem('choirDB',JSON.stringify(d));}catch(e){}}
+function gP(id){return projects.find(p=>p.id===id);}
+
+/* ═ 레이아웃 ═ */
+function chkLayout(){
+  isMobile=window.innerWidth<900;
+  if(isMobile){
+    document.getElementById('DSK').style.display='none';
+    if(audioCtx){document.getElementById(curL).classList.remove('off');}
+  } else {
+    ['L0','L1','L2','L3','L5','L6','L7'].forEach(id=>document.getElementById(id).classList.add('off'));
+    if(audioCtx){
+      document.getElementById('DSK').style.display='flex';
+      rdPL();rdSL();rdTL();bldBal();bldLeg();bldBalFull();
+      if(curPid){
+        const p=gP(curPid);
+        if(p){
+          document.getElementById('dhProjNm').textContent=p.name+' ▾';
+          const ti=TYPES[p.type]||TYPES.sa;
+          document.getElementById('dhProjIc').textContent=ti.ic;
+          document.getElementById('dhProjSub').textContent=ti.nm+(p.feast?' · '+p.feast:'');
+        }
+      }
+      rszCv('dkSpecCv');
+    } else {
+      document.getElementById('DSK').style.display='none';
+      document.getElementById('L0').classList.remove('off');
+    }
+  }
+}
+window.addEventListener('resize',chkLayout);
+
+/* ═ 마이크 ═ */
+document.getElementById('micBtn').addEventListener('click',async()=>{
+  try{
     audioCtx=new(window.AudioContext||window.webkitAudioContext)();
-    micStream=await navigator.mediaDevices.getUserMedia({
-      audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false},video:false
-    });
-    // 모드 선택 화면으로
-    document.getElementById('scStart').style.display='none';
-    document.getElementById('scMode').style.display='flex';
-  } catch(e){
-    const m=document.getElementById('errMsg');
-    m.style.display='block';
-    m.textContent='⚠️ 마이크 오류: '+e.message;
-  }
+    micStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false},video:false});
+    setupANs();
+    if(isMobile){showL('L1');gL1();}
+    else{
+      document.getElementById('L0').classList.add('off');
+      document.getElementById('DSK').style.display='flex';
+      rdPL();rdSL();rdTL();bldBal();bldLeg();bldBalFull();rszCv('dkSpecCv');
+      startLoop();
+    }
+  }catch(e){const b=document.getElementById('errBox');b.style.display='block';b.textContent='⚠️ 마이크 오류: '+e.message;}
 });
 
-/* ════════════════════════
-   SCREEN 2 — 모드 선택
-════════════════════════ */
-let selectedMode=0;
-function selectMode(n){
-  selectedMode=n;
-  [1,2,3].forEach(i=>{
-    document.getElementById('mc'+i).classList.toggle('selected',i===n);
+function setupANs(){
+  const ms=audioCtx.createMediaStreamSource(micStream);
+  const ma=audioCtx.createAnalyser();ma.fftSize=2048;ma.smoothingTimeConstant=0.82;ms.connect(ma);ANs['M']=ma;
+  PARTS.forEach(p=>{
+    const src=audioCtx.createMediaStreamSource(micStream);
+    const lo=audioCtx.createBiquadFilter();lo.type='highpass';lo.frequency.value=p.freqLo;
+    const hi=audioCtx.createBiquadFilter();hi.type='lowpass';hi.frequency.value=p.freqHi;
+    const an=audioCtx.createAnalyser();an.fftSize=2048;an.smoothingTimeConstant=0.85;
+    src.connect(lo);lo.connect(hi);hi.connect(an);ANs[p.id]=an;
   });
-  const btn=document.getElementById('modeConfirmBtn');
-  btn.disabled=false;
-  btn.textContent=['','모드 1로 시작 →','모드 2로 시작 →','모드 3로 시작 →'][n];
 }
 
-function confirmMode(){
-  currentMode=selectedMode;
-  document.getElementById('scMode').style.display='none';
-  launchApp();
+/* ═ 모바일 레이어 ═ */
+function showL(id){
+  ['L0','L1','L2','L3','L5','L6','L7'].forEach(l=>document.getElementById(l).classList.toggle('off',l!==id));
+  curL=id;
+  startLoop();
+}
+function gL1(){showL('L1');rdProjList();}
+function gL2(){
+  if(!isMobile){document.getElementById('DSK').style.display='none';}
+  showL('L2');newFeast='sa';newTod='am';buildFeastGrid();sTod('am');
+}
+function gL5(){showL('L5');const p=gP(curPid);document.getElementById('L5title').textContent=(p?p.name+' — ':'')+'전체 합창';rst5();bldBal5();rszCv('cv5');}
+function gL6(){showL('L6');bldPselBar();bldChGrid();setPbt('gu');rst6();rszCv('cv6');}
+function gL7(){showL('L7');rstScUI();rdScL7();}
+
+/* ═ L1 ═ */
+function rdProjList(){
+  const el=document.getElementById('projList');
+  if(!projects.length){el.innerHTML='<div class="empty"><div class="ei">📁</div><h3>프로젝트 없음</h3><p>새로 만들기를 눌러 시작하세요</p></div>';return;}
+  el.innerHTML=projects.map(p=>{const ti=TYPES[p.type]||TYPES.sa,sc=(p.sessions||[]).length,rc=(p.recs||[]).filter(r=>r.url).length;return `<div class="projcard" onclick="gL3('${p.id}')"><div class="pjic" style="background:${ti.co}22">${ti.ic}</div><div style="flex:1;min-width:0"><div class="pjnm">${p.name}</div><div class="pjmt">${ti.nm}${p.feast?' · '+p.feast:''}</div><div class="pjst"><span class="pjs" style="background:#1a1a2e;color:var(--acc)">분석 ${sc}회</span><span class="pjs" style="background:#052e16;color:var(--ok)">녹음 ${rc}개</span></div></div><span style="color:var(--mut);font-size:17px">›</span></div>`;}).join('');
 }
 
-function showModeSelect(){
-  document.getElementById('hdr').style.display='none';
-  document.getElementById('tabs').style.display='none';
-  document.getElementById('main').style.display='none';
-  document.getElementById('scMode').style.display='flex';
+/* ═ L2 ═ */
+let newFeast='sa', newTod='am';
+function buildFeastGrid(){
+  const g=document.getElementById('feastGrid');if(!g)return;
+  g.innerHTML=FEAST_TYPES.map(f=>`<div class="tyc${f.id===newFeast?' on':''}" id="fc_${f.id}" onclick="sFeast('${f.id}')" style="text-align:center;padding:10px 6px"><div style="font-size:18px;margin-bottom:4px">${f.ic}</div><div style="font-size:12px;font-weight:800;color:${f.id===newFeast?f.co:'var(--txt)'}">${f.nm}</div></div>`).join('');
+}
+function sFeast(id){
+  newFeast=id;
+  FEAST_TYPES.forEach(f=>{const el=document.getElementById('fc_'+f.id);if(el){el.classList.toggle('on',f.id===id);el.querySelector('div:last-child').style.color=f.id===id?f.co:'var(--txt)';}});
+}
+function sTod(t){newTod=t;['am','pm'].forEach(id=>document.getElementById('tod_'+id).classList.toggle('on',id===t));}
+function createProj(){
+  const typeId=newFeast+'_'+newTod;
+  const nm=document.getElementById('projNameInp').value.trim(),memo=document.getElementById('projMemoInp').value.trim(),now=new Date();
+  const ds=`${now.getFullYear()}.${(now.getMonth()+1).toString().padStart(2,'0')}.${now.getDate().toString().padStart(2,'0')}`;
+  const p={id:'p'+Date.now(),type:typeId,feast:'',name:nm||mkDefName(typeId,ds),memo,created:now.toISOString(),targets:{S:-18,A:-20,T:-21,B:-22},sessions:[],recs:[],scores:[]};
+  projects.unshift(p);sDB();
+  ['projNameInp','projMemoInp','feastInp'].forEach(id=>document.getElementById(id).value='');
+  if(isMobile){gL3(p.id);}
+  else{document.getElementById('L2').classList.add('off');document.getElementById('DSK').style.display='flex';curPid=p.id;PARTS.forEach(pp=>{tgts[pp.id]=p.targets[pp.id]||pp.target;});rdPL();rdSL();rdTL();document.getElementById('dhProjNm').textContent=p.name+' ▾';
+      const pti2=TYPES[p.type]||TYPES.sa;
+      document.getElementById('dhProjIc').textContent=pti2.ic;
+      document.getElementById('dhProjSub').textContent=pti2.nm+(p.feast?' · '+p.feast:'');}
 }
 
-/* ════════════════════════
-   APP LAUNCH
-════════════════════════ */
-function launchApp(){
-  setupAnalysers();
-  document.getElementById('hdr').style.display='flex';
-  document.getElementById('tabs').style.display='flex';
-  document.getElementById('main').style.display='block';
-  document.getElementById('hdot').classList.add('on');
-  document.getElementById('hstat').textContent='분석 중';
+/* ═ L3 ═ */
+function gL3(id){
+  curPid=id;
+  const p=gP(id);if(!p) return;
+  PARTS.forEach(pp=>{tgts[pp.id]=p.targets[pp.id]??pp.target;});
+  const asc=(p.scores||[]).find(s=>s.active);scoreAnalysis=asc?asc.result:null;
+  if(!isMobile){
+    document.getElementById('DSK').style.display='flex';
+    ['L7'].forEach(x=>document.getElementById(x).classList.add('off'));
+    document.getElementById('dhProjNm').textContent=p.name+' ▾';
+    const ti=TYPES[p.type]||TYPES.sa;
+    document.getElementById('dhProjIc').textContent=ti.ic;
+    document.getElementById('dhProjSub').textContent=ti.nm+(p.feast?' · '+p.feast:'');
+    const asc=(p.scores||[]).find(s=>s.active);
+    const hn=document.getElementById('dhScoreNm');
+    if(asc&&hn){hn.textContent='🎼 '+asc.name;hn.style.display='flex';}
+    else if(hn)hn.style.display='none';
+    rdPL();rdSL();rdTL();bldBal();bldLeg();bldBalFull();closeProjModal();return;
+  }
+  showL('L3');
+  const ti=TYPES[p.type]||TYPES.sa;
+  document.getElementById('L3title').textContent=p.name;
+  document.getElementById('projBanner').innerHTML=`<div class="pbic" style="background:${ti.co}22">${ti.ic}</div><div><div class="pbnm">${p.name}</div><div class="pbsub">${ti.nm}${p.feast?' · '+p.feast:''} · ${p.created.slice(0,10)}</div>${p.memo?`<div style="font-size:11px;color:var(--mut);margin-top:1px">${p.memo}</div>`:''}</div>`;
+  document.getElementById('tgtGrid').innerHTML=PARTS.map(pp=>`<div class="tgtcard"><div class="tgtid" style="color:${pp.color}">${pp.id} <span style="font-size:9px;font-weight:400;color:var(--mut)">${pp.name}</span></div><div class="tgtrow"><label>목표</label><input type="range" min="-40" max="-6" step="1" value="${tgts[pp.id]}" style="accent-color:${pp.color}" oninput="tgts['${pp.id}']=+this.value;svTgt('${pp.id}',+this.value);document.getElementById('tv3_${pp.id}').textContent=this.value+'dB'"><span id="tv3_${pp.id}">${tgts[pp.id]}dB</span></div></div>`).join('');
+  rdHist();rdRecs();rdScL3();
+}
+function svTgt(id,v){const p=gP(curPid);if(p){p.targets[id]=v;sDB();}}
+function rdHist(){const p=gP(curPid);if(!p) return;const el=document.getElementById('histList');if(!(p.sessions||[]).length){el.innerHTML='<div class="empty" style="padding:11px"><div class="ei">📋</div><h3>기록 없음</h3><p>분석을 시작하면 자동 기록됩니다</p></div>';return;}el.innerHTML=[...p.sessions].reverse().map((s,i)=>{const ri=p.sessions.length-1-i;return `<div class="sitem"><div class="sdt">${s.date}<br>${s.time}</div><div class="sbody"><div class="smode">${s.mode==='full'?'🎵 전체':'🎙 파트'}</div>${s.parts?`<div class="stags">${s.parts.map(id=>{const pp=PARTS.find(x=>x.id===id);return `<span class="stag" style="background:${pp.color}22;color:${pp.color}">${id}</span>`;}).join('')}</div>`:''} ${s.note?`<div class="snote">${s.note}</div>`:''}<div style="font-size:10px;color:var(--mut);margin-top:2px">${s.dur||'—'}</div></div><div class="sdel" onclick="delSess(${ri})">✕</div></div>`;}).join('');}
+function delSess(i){if(!confirm('삭제?')) return;const p=gP(curPid);if(!p) return;p.sessions.splice(i,1);sDB();rdHist();}
+function rdRecs(){const p=gP(curPid);if(!p) return;const el=document.getElementById('recList3');const v=(p.recs||[]).filter(r=>r.url);if(!v.length){el.innerHTML='<div class="empty" style="padding:9px"><div class="ei">🎵</div><h3>녹음 없음</h3></div>';return;}el.innerHTML=v.map((r,i)=>`<div class="ri"><div class="rihd"><div class="rinm">${r.name}</div><div class="ridel" onclick="delRec(${i})">✕</div></div><audio class="riau" controls src="${r.url}"></audio><a class="dla" href="${r.url}" download="${r.name}">↓ 저장</a></div>`).join('');}
+function delRec(i){if(!confirm('삭제?')) return;const p=gP(curPid);if(!p) return;p.recs.splice(i,1);sDB();rdRecs();}
+function deleteProj(){if(!confirm('프로젝트를 삭제할까요?')) return;projects=projects.filter(p=>p.id!==curPid);sDB();if(isMobile)gL1();else{curPid=null;rdPL();rdSL();document.getElementById('dhProjNm').textContent='프로젝트 선택 ▾';document.getElementById('dhProjSub').textContent='탭하여 프로젝트 변경';}}
+function backL7(){if(isMobile)gL3(curPid);else{document.getElementById('L7').classList.add('off');document.getElementById('DSK').style.display='flex';rdSL();}}
 
-  const modeLabels={1:'M1·M32',2:'M2·주파수',3:'M3·AI'};
-  document.getElementById('modeBadge').textContent=modeLabels[currentMode];
-  document.getElementById('hdrSub').textContent={
-    1:'모드1 — M32 직접연결',
-    2:'모드2 — 주파수 대역 분리',
-    3:'모드3 — AI 피치 감지',
-  }[currentMode];
+/* ═ L5 모바일 ═ */
+function bldBal5(){document.getElementById('balCard5').innerHTML=PARTS.map(pp=>`<div style="display:flex;align-items:center;gap:7px"><span style="font-size:11px;font-weight:800;color:${pp.color};min-width:15px">${pp.id}</span><div style="flex:1;height:6px;background:var(--sur2);border-radius:3px;overflow:hidden;position:relative"><div style="position:absolute;top:0;left:${pp.ideal}%;width:2px;height:100%;background:rgba(255,255,255,.18)"></div><div id="bl5_${pp.id}" style="height:100%;border-radius:3px;background:${pp.color};width:0%;transition:width .15s"></div></div><span id="bp5_${pp.id}" style="font-family:monospace;font-size:10px;color:var(--mut);min-width:24px;text-align:right">0%</span></div>`).join('');}
+function rst5(){a5run=false;a5st=null;clearInterval(a5iv);setDot('dot5',false,'');document.getElementById('stat5').textContent='분석 대기 중';document.getElementById('tmr5').textContent='00:00';document.getElementById('tmr5').classList.remove('on');document.getElementById('sb5s').disabled=false;document.getElementById('sb5x').disabled=true;fpk5=-Infinity;}
+function stAnal5(){a5run=true;a5st=Date.now();setDot('dot5',true,'run');document.getElementById('stat5').textContent='분석 중';document.getElementById('tmr5').classList.add('on');document.getElementById('sb5s').disabled=true;document.getElementById('sb5x').disabled=false;a5iv=setInterval(()=>{document.getElementById('tmr5').textContent=fmt(Math.floor((Date.now()-a5st)/1000));},1000);}
+function spAnal5(){const dur=a5st?fmt(Math.floor((Date.now()-a5st)/1000)):null;clearInterval(a5iv);a5run=false;setDot('dot5',false,'stp');document.getElementById('stat5').textContent='분석 종료됨';document.getElementById('tmr5').classList.remove('on');document.getElementById('sb5s').disabled=false;document.getElementById('sb5x').disabled=true;if(isRec)stpRec();openSess('full',null,dur);}
+function sab5(){if(a5run)spAnal5();else gL3(curPid);}
 
-  buildUI(); alive=true; loop();
+/* ═ L6 모바일 ═ */
+function bldPselBar(){const bar=document.getElementById('pselbar');bar.innerHTML='<button class="pselall" onclick="selAll()">전체</button>'+PARTS.map(pp=>`<button class="pselbtn on" id="psb_${pp.id}" style="color:${pp.color};border-color:${pp.color}" onclick="tgP('${pp.id}')">${pp.id}</button>`).join('');activeParts=new Set(PARTS.map(p=>p.id));}
+function tgP(id){if(activeParts.has(id)){if(activeParts.size===1){alert('최소 1개');return;}activeParts.delete(id);}else activeParts.add(id);const pp=PARTS.find(x=>x.id===id),on=activeParts.has(id);const btn=document.getElementById('psb_'+id);btn.classList.toggle('on',on);btn.style.borderColor=on?pp.color:'var(--bdr)';btn.style.color=on?pp.color:'var(--mut)';PARTS.forEach(p=>{const ch=document.getElementById('ch_'+p.id);if(ch)ch.className='ch'+(activeParts.has(p.id)?'':' off');});}
+function selAll(){activeParts=new Set(PARTS.map(p=>p.id));bldPselBar();bldChGrid();}
+function bldChGrid(){const n=activeParts.size;const grid=document.getElementById('chGrid');grid.className='chgrid n'+Math.min(n,4);grid.innerHTML=PARTS.map(pp=>`<div class="ch${activeParts.has(pp.id)?'':' off'}" id="ch_${pp.id}"><div class="chhd"><div><div class="chid" style="color:${pp.color}">${pp.id}</div><div class="chnm">${pp.name}</div></div><div class="chdbb"><div class="chval" id="db6_${pp.id}" style="color:${pp.color}">—</div><div class="chu">dBFS</div><div class="chpk" id="pk6_${pp.id}">pk —</div></div></div><div class="vu"><div class="vut"><div class="vub" id="vl6_${pp.id}" style="background:${pp.color};height:0"></div></div><div class="vut"><div class="vub" id="vr6_${pp.id}" style="background:${pp.color};height:0"></div></div></div><div class="pit"><span class="pitn" id="nt6_${pp.id}" style="color:${pp.color}">—</span><div class="pitt"><div class="pitnd" id="nd6_${pp.id}" style="background:${pp.color};left:50%"></div></div><span class="pitc it" id="ct6_${pp.id}">0¢</span></div><div class="ps" id="ps6_${pp.id}"><div class="psi psf">♭0%</div><div class="psi pso">●100%</div><div class="psi pss">♯0%</div></div><div class="bdg idle" id="bdg6_${pp.id}"><span>⏸</span>${activeParts.has(pp.id)?'신호 없음':'비활성'}</div><div class="tslrow"><label>목표</label><input type="range" min="-40" max="-6" step="1" value="${tgts[pp.id]}" style="accent-color:${pp.color}" oninput="tgts['${pp.id}']=+this.value;svTgt('${pp.id}',+this.value);document.getElementById('tv6_${pp.id}').textContent=this.value+'dB'"><span id="tv6_${pp.id}">${tgts[pp.id]}dB</span></div></div>`).join('');}
+function rst6(){a6run=false;a6st=null;clearInterval(a6iv);setDot('dot6',false,'');document.getElementById('stat6').textContent='분석 대기 중';document.getElementById('tmr6').textContent='00:00';document.getElementById('tmr6').classList.remove('on');document.getElementById('sb6s').disabled=false;document.getElementById('sb6x').disabled=true;PARTS.forEach(p=>{peaks[p.id]=-Infinity;pitchHist[p.id]=[];});}
+function stAnal6(){a6run=true;a6st=Date.now();setDot('dot6',true,'run');document.getElementById('stat6').textContent='분석 중';document.getElementById('tmr6').classList.add('on');document.getElementById('sb6s').disabled=true;document.getElementById('sb6x').disabled=false;PARTS.forEach(p=>{peaks[p.id]=-Infinity;pitchHist[p.id]=[];});a6iv=setInterval(()=>{document.getElementById('tmr6').textContent=fmt(Math.floor((Date.now()-a6st)/1000));},1000);}
+function spAnal6(){const dur=a6st?fmt(Math.floor((Date.now()-a6st)/1000)):null;clearInterval(a6iv);a6run=false;setDot('dot6',false,'stp');document.getElementById('stat6').textContent='분석 종료됨';document.getElementById('tmr6').classList.remove('on');document.getElementById('sb6s').disabled=false;document.getElementById('sb6x').disabled=true;if(isRec)stpRec();openSess('part',[...activeParts],dur);}
+function sab6(){if(a6run)spAnal6();else gL3(curPid);}
+function setPbt(t){pbTab=t;document.querySelectorAll('.pbtab').forEach(el=>el.classList.toggle('on',el.dataset.pt===t));['gu','ha','sp'].forEach(id=>{document.getElementById('pb-'+id).style.display=id===t?'block':'none';});if(t==='sp')rszCv('cv6');}
+
+/* ═ DESKTOP ═ */
+function setDM(m){
+  dskMode=m;
+  document.getElementById('damFull').classList.toggle('on',m==='full');
+  document.getElementById('damPart').classList.toggle('on',m==='part');
+  document.getElementById('DC').className='m'+m;
+  document.getElementById('dfullvu').style.display=m==='full'?'block':'none';
+  document.getElementById('dpartchs').style.display=m==='part'?'block':'none';
+  document.getElementById('dpartsel').style.display=m==='part'?'flex':'none';
+  if(m==='part'){bldDChGrid();bldDPSel();}
+  bldBal();bldLeg();rszCv('dkSpecCv');
 }
 
-/* ── 모드별 analyser 설정 ── */
-function setupAnalysers(){
-  if(currentMode===1){
-    // 모드1: 단일 스트림을 4채널에 (실제로는 별도 장치여야 함)
-    PARTS.forEach(p=>{
-      const src=audioCtx.createMediaStreamSource(micStream);
-      const an=audioCtx.createAnalyser();
-      an.fftSize=2048; an.smoothingTimeConstant=0.82;
-      src.connect(an); ANs[p.id]=an;
-    });
-  } else if(currentMode===2){
-    // 모드2: BiquadFilter로 대역 분리
-    PARTS.forEach(p=>{
-      const src=audioCtx.createMediaStreamSource(micStream);
-      const lo=audioCtx.createBiquadFilter();
-      const hi=audioCtx.createBiquadFilter();
-      lo.type='highpass'; lo.frequency.value=p.freqLo;
-      hi.type='lowpass';  hi.frequency.value=p.freqHi;
-      const an=audioCtx.createAnalyser();
-      an.fftSize=2048; an.smoothingTimeConstant=0.85;
-      src.connect(lo); lo.connect(hi); hi.connect(an);
-      ANs[p.id]=an;
-    });
-  } else {
-    // 모드3: 단일 analyser 공유 (AI 감지 플레이스홀더)
-    const masterSrc=audioCtx.createMediaStreamSource(micStream);
-    const masterAn=audioCtx.createAnalyser();
-    masterAn.fftSize=4096; masterAn.smoothingTimeConstant=0.8;
-    masterSrc.connect(masterAn);
-    PARTS.forEach(p=>{ ANs[p.id]=masterAn; });
+
+function dkApplySc(i){const p=gP(curPid);if(!p)return;p.scores.forEach((s,idx)=>s.active=idx===i);const s=p.scores[i];if(s?.result){scoreAnalysis=s.result;['S','A','T','B'].forEach(id=>{if(s.result[id]?.target_db){tgts[id]=s.result[id].target_db;p.targets[id]=s.result[id].target_db;}});sDB();rdSL();rdTL();alert(`✅ "${s.name}" 적용됨`);}}
+
+
+
+
+
+
+/* Desktop start/stop */
+
+
+/* Project modal */
+
+
+
+/* ═ 악보 ═ */
+function rstScUI(){scIdx=null;document.getElementById('suzZone').style.display='flex';document.getElementById('suzZone').classList.remove('hf');document.getElementById('scorePreview').style.display='none';document.getElementById('scorePreview').src='';document.getElementById('aiLod').style.display='none';document.getElementById('scRes').style.display='none';document.getElementById('scErr').style.display='none';}
+function rdScL3(){const p=gP(curPid);if(!p) return;const el=document.getElementById('scoreList3');if(!(p.scores||[]).length){el.innerHTML='<div style="background:var(--sur2);border:1px dashed var(--bdr);border-radius:9px;padding:11px;text-align:center;font-size:11px;color:var(--mut)">악보 없음 — 악보 추가를 눌러 업로드하세요</div>';return;}el.innerHTML=p.scores.map((s,i)=>`<div class="scthumb" onclick="viewSc(${i})">${s.thumb?`<img class="scthimg" src="${s.thumb}" alt="">`:`<div class="scthimg">📄</div>`}<div style="flex:1;min-width:0"><div class="scthnm">${s.name}</div><div class="scthsub">${s.analyzed?'✅ 분석 완료':'⏳ 미분석'} · ${s.date}${s.result?' · S:'+s.result.S?.range:''}</div></div>${s.active?'<div style="font-size:10px;padding:2px 6px;border-radius:7px;background:#052e16;color:var(--ok);font-weight:700;flex-shrink:0">적용중</div>':''}<div class="scthdel" onclick="event.stopPropagation();delSc(${i})">✕</div></div>`).join('');}
+function rdScL7(){const p=gP(curPid);if(!p) return;const el=document.getElementById('scListL7');if(!(p.scores||[]).length){el.innerHTML='<div class="empty" style="padding:11px"><div class="ei">📄</div><h3>악보 없음</h3></div>';return;}el.innerHTML=p.scores.map((s,i)=>`<div class="scthumb" onclick="viewSc(${i})">${s.thumb?`<img class="scthimg" src="${s.thumb}" alt="">`:`<div class="scthimg">📄</div>`}<div style="flex:1;min-width:0"><div class="scthnm">${s.name}</div><div class="scthsub">${s.active?'✅ 적용중':'탭하여 보기'} · ${s.date}</div></div><div class="scthdel" onclick="event.stopPropagation();delSc(${i})">✕</div></div>`).join('');}
+function delSc(i){if(!confirm('삭제?')) return;const p=gP(curPid);if(!p) return;p.scores.splice(i,1);if(!p.scores.some(s=>s.active))scoreAnalysis=null;sDB();rdScL3();rdScL7();rdSL();}
+function viewSc(i){const p=gP(curPid);if(!p) return;const s=p.scores[i];if(!s) return;gL7();if(s.imageData){const pr=document.getElementById('scorePreview');pr.src=s.imageData;pr.style.display='block';document.getElementById('suzZone').style.display='none';}if(s.result){scIdx=i;showScRes(s.result,s.name,i);}}
+async function handleScoreUpload(input){
+  const file=input.files[0];if(!file) return;input.value='';
+  const zone=document.getElementById('suzZone'),prev=document.getElementById('scorePreview'),lod=document.getElementById('aiLod'),res=document.getElementById('scRes'),err=document.getElementById('scErr');
+  const imgData=await f2b64(file);prev.src=imgData;prev.style.display='block';zone.style.display='none';zone.classList.add('hf');res.style.display='none';err.style.display='none';lod.style.display='flex';
+  const b64=imgData.split(',')[1],mime=file.type||'image/jpeg',now=new Date(),ds=`${now.getFullYear()}.${(now.getMonth()+1).toString().padStart(2,'0')}.${now.getDate().toString().padStart(2,'0')}`;
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1500,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:mime,data:b64}},{type:'text',text:'이 악보를 분석하여 SATB 합창 파트별 정보를 순수 JSON으로만 응답(마크다운 없이):
+{"title":"곡제목","composer":"작곡가","key":"조성","time_signature":"박자","S":{"range":"C4~G5","key_notes":["C4","E4","G4"],"target_db":-18,"description":"특징"},"A":{"range":"","key_notes":[],"target_db":-20,"description":""},"T":{"range":"","key_notes":[],"target_db":-21,"description":""},"B":{"range":"","key_notes":[],"target_db":-22,"description":""}}
+악보 아니면: {"error":"사유"}'}]}]})});
+    const data=await resp.json();lod.style.display='none';
+    if(data.error){shScErr('API 오류: '+data.error.message);return;}
+    const text=(data.content||[]).filter(c=>c.type==='text').map(c=>c.text).join('');
+    let parsed;try{parsed=JSON.parse(text.replace(/```json|```/g,'').trim());}catch(e){shScErr('JSON 파싱 오류. 이미지 품질을 확인하세요.');return;}
+    if(parsed.error){shScErr('분석 실패: '+parsed.error);return;}
+    const p=gP(curPid);if(!p) return;if(!p.scores)p.scores=[];
+    const sc={id:'sc'+Date.now(),name:parsed.title||(file.name.replace(/\.[^.]+$/,'')),date:ds,analyzed:true,active:false,thumb:await rszThumb(imgData),imageData:imgData,result:parsed};
+    scIdx=p.scores.length;p.scores.push(sc);sDB();rdScL7();rdScL3();rdSL();
+    showScRes(parsed,sc.name,scIdx);
+  }catch(e){lod.style.display='none';shScErr('분석 오류: '+e.message+'<br><span style="color:var(--mut)">GitHub Pages(HTTPS)에서 AI 분석이 작동합니다.</span>');}
+}
+function showScRes(parsed,name,idx){
+  document.getElementById('scResTitle').textContent='🎼 '+(parsed.title||name)+(parsed.composer?' — '+parsed.composer:'');
+  const meta=[];if(parsed.key)meta.push('조성: '+parsed.key);if(parsed.time_signature)meta.push('박자: '+parsed.time_signature);
+  document.getElementById('scResContent').innerHTML=(meta.length?`<div style="font-size:11px;color:var(--mut);margin-bottom:9px">${meta.join(' · ')}</div>`:'')+['S','A','T','B'].map(id=>{const pp=PARTS.find(x=>x.id===id),d=parsed[id];if(!d)return '';return `<div class="scpr"><div class="scprid" style="color:${pp.color}">${id}</div><div class="scprb"><div class="scprrng" style="color:${pp.color}">${pp.name} · ${d.range||'—'}</div><div class="scprnts">${(d.key_notes||[]).map(n=>`<span class="scprnbdg" style="color:${pp.color};border-color:${pp.color}44">${n}</span>`).join('')}</div><div class="scprdsc">${d.description||''}</div><div style="font-size:10px;color:var(--mut);margin-top:3px">권장 목표: <span style="color:${pp.color};font-weight:700">${d.target_db||tgts[id]}dBFS</span></div></div></div>`;}).join('');
+  document.getElementById('scRes').style.display='block';scIdx=idx;
+}
+function shScErr(msg){const el=document.getElementById('scErr');el.style.display='block';el.innerHTML='⚠️ '+msg;}
+function applyScore(){
+  const p=gP(curPid);if(!p||scIdx===null)return;
+  const s=p.scores[scIdx];if(!s?.result)return;
+  p.scores.forEach(sc=>sc.active=false);s.active=true;
+  ['S','A','T','B'].forEach(id=>{if(s.result[id]?.target_db){tgts[id]=s.result[id].target_db;p.targets[id]=s.result[id].target_db;}});
+  scoreAnalysis=s.result;sDB();alert(`✅ "${s.name}" 적용 완료`);
+  if(isMobile)gL3(curPid);else{
+    document.getElementById('L7').classList.add('off');
+    document.getElementById('DSK').style.display='flex';
+    rdSL();rdTL();
+    const hn=document.getElementById('dhScoreNm');
+    const p2=gP(curPid);const asc2=(p2?.scores||[]).find(s=>s.active);
+    if(asc2&&hn){hn.textContent='🎼 '+asc2.name;hn.style.display='flex';}
   }
 }
+async function f2b64(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file);});}
+async function rszThumb(dataUrl){return new Promise(res=>{const img=new Image();img.onload=()=>{const cv=document.createElement('canvas'),MAX=80,ratio=Math.min(MAX/img.width,MAX/img.height);cv.width=img.width*ratio;cv.height=img.height*ratio;cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);res(cv.toDataURL('image/jpeg',.7));};img.onerror=()=>res(null);img.src=dataUrl;});}
 
-/* ── 모드 배너 ── */
-function updateModeBanner(){
-  const el=document.getElementById('modeBanner');
-  if(!el) return;
-  const info={
-    1:{cls:'m1',txt:'🎚️ <b>모드1</b> — M32 채널 출력을 직접 연결한 경우 파트별 독립 분석이 가능합니다. 채널 라벨을 탭하여 파트를 지정하세요.'},
-    2:{cls:'m2',txt:'🎵 <b>모드2</b> — 마이크 1개로 주파수 대역을 분리합니다. S(250~1100Hz) / A(175~700Hz) / T(130~520Hz) / B(80~350Hz). 겹치는 구간이 있어 참고용으로 활용하세요.'},
-    3:{cls:'m3',txt:'🤖 <b>모드3</b> — 단일 마이크로 전체 화음을 분석합니다. 파트 구분은 음역 추정이며 AI 모델 없이는 제한됩니다. 전체 밸런스·화음 모니터링에 활용하세요.'},
-  }[currentMode];
-  el.className='mode-banner '+info.cls;
-  el.innerHTML=info.txt;
-}
+/* ═ 녹음 ═ */
+function tgRec(){if(!isRec)stRec();else stpRec();}
+function stRec(){if(!micStream)return;gChunks=[];gRec=new MediaRecorder(micStream);gRec.ondataavailable=e=>{if(e.data.size>0)gChunks.push(e.data);};gRec.onstop=svRec;gRec.start();isRec=true;gRecSt=Date.now();['rb5','rb6','drbtn'].forEach(id=>{const b=document.getElementById(id);if(b)b.classList.add('on');});}
+function stpRec(){if(gRec?.state!=='inactive')gRec.stop();isRec=false;['rb5','rb6','drbtn'].forEach(id=>{const b=document.getElementById(id);if(b)b.classList.remove('on');});}
+function svRec(){const blob=new Blob(gChunks,{type:'audio/webm'}),url=URL.createObjectURL(blob),now=new Date();const mode=isMobile?(curL==='L5'?'full':'part'):dskMode,parts=mode==='full'?'전체':[...activeParts].join('');const name=`${now.getHours().toString().padStart(2,'0')}${now.getMinutes().toString().padStart(2,'0')}_${parts}.webm`;const p=gP(curPid);if(p){if(!p.recs)p.recs=[];p.recs.push({name,url,dur:Math.floor((Date.now()-gRecSt)/1000),date:now.toISOString()});sDB();}}
 
-/* ════════════════════════
-   UI 빌드
-════════════════════════ */
-function buildUI(){ buildCh(); buildBal(); buildLeg(); setView('ch'); updateModeBanner(); }
-
-function buildCh(){
-  document.getElementById('chGrid').innerHTML=PARTS.map(p=>`
-  <div class="ch">
-    <div class="ch-hd">
-      <div>
-        <div class="ch-id" style="color:${p.color}">${p.id}</div>
-        <div class="ch-nm">${p.name}</div>
-        ${currentMode===1?`<div class="ch-label-edit" onclick="alert('M32 채널 라벨 편집 기능 — 추후 지원')">채널 편집</div>`:''}
-      </div>
-      <div class="ch-db">
-        <div class="ch-val" id="db_${p.id}" style="color:${p.color}">—</div>
-        <div class="ch-unit">dBFS</div>
-        <div class="ch-pk" id="pk_${p.id}">pk —</div>
-      </div>
-    </div>
-    <div class="vu">
-      <div class="vu-t"><div class="vu-b" id="vuL_${p.id}" style="background:${p.color};height:0"></div></div>
-      <div class="vu-t"><div class="vu-b" id="vuR_${p.id}" style="background:${p.color};height:0"></div></div>
-    </div>
-    <div class="pit">
-      <span class="pit-n" id="nt_${p.id}" style="color:${p.color}">—</span>
-      <div class="pit-t"><div class="pit-nd" id="nd_${p.id}" style="background:${p.color};left:50%"></div></div>
-      <span class="pit-c ok" id="ct_${p.id}">0¢</span>
-    </div>
-    <div class="pitch-stat" id="ps_${p.id}">
-      <div class="ps-item ps-flat">♭ 0%</div>
-      <div class="ps-item ps-ok">● 100%</div>
-      <div class="ps-item ps-sharp">♯ 0%</div>
-    </div>
-    <div class="bdg idle" id="bdg_${p.id}"><span>⏸</span> 신호 없음</div>
-    <div class="tgt">
-      <label>목표</label>
-      <input type="range" min="-40" max="-6" step="1" value="${p.target}"
-        style="accent-color:${p.color}"
-        oninput="tgts['${p.id}']=+this.value;document.getElementById('tv_${p.id}').textContent=this.value+'dB'">
-      <span id="tv_${p.id}">${p.target}dB</span>
-    </div>
-  </div>`).join('');
+/* ═ 세션 모달 ═ */
+function openSess(mode,parts,dur){sessData={mode,parts,dur};document.getElementById('sessNote').value='';document.getElementById('sessModal').style.display='flex';}
+function closeSess(note){
+  document.getElementById('sessModal').style.display='none';
+  if(!sessData||!curPid)return;const p=gP(curPid);if(!p)return;
+  const now=new Date();
+  p.sessions.push({date:`${now.getFullYear()}.${(now.getMonth()+1).toString().padStart(2,'0')}.${now.getDate().toString().padStart(2,'0')}`,time:`${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`,mode:sessData.mode,parts:sessData.parts,note:note.trim(),dur:sessData.dur||'—'});
+  sDB();sessData=null;if(isMobile&&curL==='L3')rdHist();
 }
 
-function buildBal(){
-  document.getElementById('balRows').innerHTML=PARTS.map(p=>`
-  <div class="bal-row">
-    <span class="bal-id" style="color:${p.color}">${p.id}</span>
-    <div class="bal-trk">
-      <div class="bal-idl" style="left:${p.ideal}%"></div>
-      <div class="bal-fl" id="bl_${p.id}" style="background:${p.color};width:0%"></div>
-    </div>
-    <span class="bal-pct" id="bp_${p.id}">0%</span>
-  </div>`).join('');
-}
+/* ═ 분석 헬퍼 ═ */
+function getRms(an){if(!an)return -Infinity;const b=new Float32Array(an.fftSize);an.getFloatTimeDomainData(b);let s=0;for(let i=0;i<b.length;i++)s+=b[i]*b[i];const v=Math.sqrt(s/b.length);return v<1e-8?-Infinity:20*Math.log10(v);}
+function getDomFreq(an,lo,hi){if(!an||!audioCtx)return 0;const N=an.frequencyBinCount,b=new Uint8Array(N);an.getByteFrequencyData(b);const li=Math.floor((lo||80)/(audioCtx.sampleRate/an.fftSize)),hi2=Math.floor((hi||1200)/(audioCtx.sampleRate/an.fftSize));let mx=-1,ix=0;for(let i=li;i<Math.min(hi2,N);i++)if(b[i]>mx){mx=b[i];ix=i;}return ix*(audioCtx.sampleRate/an.fftSize);}
+function f2note(f){if(!f||f<20)return{name:'—',cents:0};const m=12*Math.log2(f/440)+69,r=Math.round(m);return{name:NOTES[((r%12)+12)%12]+Math.floor(r/12-1),cents:Math.round((m-r)*100)};}
+function clsLv(db,tgt){if(!isFinite(db))return'idle';const d=db-tgt;return d>6?'high':d>2?'warn':d<-8?'low':d<-3?'warn':'ok';}
 
-function buildLeg(){
-  document.getElementById('leg').innerHTML=PARTS.map(p=>
-    `<div class="leg-i"><div class="leg-l" style="background:${p.color}"></div><span style="color:${p.color}">${p.id} ${p.name}</span></div>`
-  ).join('');
-}
-
-/* ── 탭 ── */
-document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>setView(t.dataset.v)));
-function setView(v){
-  view=v;
-  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.v===v));
-  ['ch','sp','gu','re'].forEach(id=>{
-    const el=document.getElementById('v'+id.charAt(0).toUpperCase()+id.slice(1));
-    if(el) el.style.display=id===v?'block':'none';
-  });
-  if(v==='sp') resizeCv();
-}
-
-/* ── 분석 헬퍼 ── */
-function getRms(an){
-  if(!an) return -Infinity;
-  const b=new Float32Array(an.fftSize);
-  an.getFloatTimeDomainData(b);
-  let s=0; for(let i=0;i<b.length;i++) s+=b[i]*b[i];
-  const v=Math.sqrt(s/b.length);
-  return v<1e-8?-Infinity:20*Math.log10(v);
-}
-function getDomFreq(an,loHz,hiHz){
-  if(!an||!audioCtx) return 0;
-  const N=an.frequencyBinCount,b=new Uint8Array(N);
-  an.getByteFrequencyData(b);
-  const lo=Math.floor((loHz||80)/(audioCtx.sampleRate/an.fftSize));
-  const hi=Math.floor((hiHz||1200)/(audioCtx.sampleRate/an.fftSize));
-  let mx=-1,ix=0;
-  for(let i=lo;i<Math.min(hi,N);i++) if(b[i]>mx){mx=b[i];ix=i;}
-  return ix*(audioCtx.sampleRate/an.fftSize);
-}
-function f2note(f){
-  if(!f||f<20) return {name:'—',cents:0};
-  const midi=12*Math.log2(f/440)+69,r=Math.round(midi);
-  return {name:NOTES[((r%12)+12)%12]+Math.floor(r/12-1),cents:Math.round((midi-r)*100)};
-}
-function clsLevel(db,tgt){
-  if(!isFinite(db)) return 'idle';
-  const d=db-tgt;
-  return d>6?'high':d>2?'warn':d<-8?'low':d<-3?'warn':'ok';
-}
-
-/* ── 화음 분석 ── */
-function analyzeHarmony(){
-  const panel=document.getElementById('harmonyPanel'); if(!panel) return;
-  const pairs=[{ids:['S','A'],label:'S+A'},{ids:['T','B'],label:'T+B'},{ids:['S','T'],label:'S+T'},{ids:['A','B'],label:'A+B'}];
-  panel.innerHTML=pairs.map(pair=>{
+function runHarm(elId,parts,dsk){
+  const el=document.getElementById(elId);if(!el)return;
+  const pairs=[{ids:['S','A'],l:'S+A'},{ids:['T','B'],l:'T+B'},{ids:['S','T'],l:'S+T'},{ids:['A','B'],l:'A+B'}];
+  const act=pairs.filter(pair=>pair.ids.every(id=>parts.has(id)));
+  if(!act.length){el.innerHTML='<div style="font-size:11px;color:var(--mut)">파트 2개 이상 선택 시 표시</div>';return;}
+  const cls=dsk?{row:'dhr',pair:'dhpr',int:'dhint',cent:'dhcnt',bdg:'dhbdg'}:{row:'hr',pair:'hpair',int:'hint',cent:'hcnt',bdg:'hbdg'};
+  el.innerHTML=act.map(pair=>{
     const[id1,id2]=pair.ids,f1=freqNow[id1],f2=freqNow[id2];
-    if(!f1||!f2||f1<20||f2<20) return `<div class="harmony-row"><span class="h-pair">${pair.label}</span><span style="color:var(--mut);font-size:11px;flex:1;padding:0 4px">—</span><span class="h-cent" style="color:var(--mut)">—</span><span class="h-badge" style="background:var(--sur2);color:var(--mut)">대기</span></div>`;
-    const semi=Math.abs(Math.round(12*Math.log2(Math.max(f1,f2)/Math.min(f1,f2))));
-    const norm=semi%12;
-    const intName=INT_NAME[norm]||semi+'반음';
-    const qual=INT_Q[norm]||'warn';
-    const centDiff=Math.round(1200*Math.log2(Math.max(f1,f2)/Math.min(f1,f2)))-(semi*100);
-    return `<div class="harmony-row">
-      <span class="h-pair">${pair.label}</span>
-      <span class="h-int">${intName}</span>
-      <span class="h-cent" style="color:${Math.abs(centDiff)<15?'var(--ok)':'var(--warn)'}">±${Math.abs(centDiff)}¢</span>
-      <span class="h-badge h-${qual}">${qual==='good'?'협화':qual==='warn'?'주의':'불협화'}</span>
-    </div>`;
+    if(!f1||!f2||f1<20||f2<20)return `<div class="${cls.row}"><span class="${cls.pair}">${pair.l}</span><span style="flex:1;color:var(--mut);font-size:11px">—</span><span class="${cls.cent}">—</span><span class="${cls.bdg}" style="background:var(--sur2);color:var(--mut)">대기</span></div>`;
+    const semi=Math.abs(Math.round(12*Math.log2(Math.max(f1,f2)/Math.min(f1,f2)))),norm=semi%12;
+    const cd=Math.round(1200*Math.log2(Math.max(f1,f2)/Math.min(f1,f2)))-(semi*100);const q=INT_Q[norm]||'w';
+    return `<div class="${cls.row}"><span class="${cls.pair}">${pair.l}</span><span class="${cls.int}">${INT_N[norm]||semi+'반음'}</span><span class="${cls.cent}" style="color:${Math.abs(cd)<15?'var(--ok)':'var(--warn)'}">±${Math.abs(cd)}¢</span><span class="${cls.bdg} h${q}">${q==='g'?'협화':q==='w'?'주의':'불협화'}</span></div>`;
   }).join('');
 }
 
-/* ── 메인 분석 ── */
-function analyze(){
-  const lin={},dbs={};
-  PARTS.forEach(p=>{
-    const an=ANs[p.id];
-    const db=getRms(an);
-    const freq=getDomFreq(an,p.freqLo,p.freqHi);
-    const nt=f2note(freq);
-    const cl=clsLevel(db,tgts[p.id]);
-    const bd=BDG[cl];
-    dbs[p.id]=db; lin[p.id]=isFinite(db)?Math.pow(10,db/20):0;
-    if(isFinite(db)&&db>peaks[p.id]) peaks[p.id]=db;
-    if(freq>20) freqNow[p.id]=freq;
+function mkGuide(dbs,dsk){
+  return PARTS.filter(pp=>activeParts.has(pp.id)).map(pp=>{
+    const db=dbs[pp.id]??-Infinity,diff=isFinite(db)?db-tgts[pp.id]:null,cl=clsLv(db,tgts[pp.id]),bd=BDG[cl];
+    const h=pitchHist[pp.id],t2=h.length||1;
+    const fP=Math.round(h.filter(c=>c<-15).length/t2*100),sP=Math.round(h.filter(c=>c>15).length/t2*100);
+    let main='';
+    if(diff===null)main='신호 없음';
+    else if(diff>6)main=`페이더 <strong>−${Math.round(diff)}dB</strong> 낮추세요`;
+    else if(diff>2)main=`약간 높음 +${diff.toFixed(1)}dB`;
+    else if(diff<-8)main=`페이더 <strong>+${Math.abs(Math.round(diff))}dB</strong> 올리세요`;
+    else if(diff<-3)main=`약간 낮음 ${diff.toFixed(1)}dB`;
+    else main='적정 — 유지';
+    const ps=t2>30?`음정 ♭${fP}% ●${100-fP-sP}% ♯${sP}% ${fP>40?'→Flat':sP>40?'→Sharp':''}`:' ';
+    let smHtml='';
+    if(scoreAnalysis?.S&&freqNow[pp.id]>20){const cn=f2note(freqNow[pp.id]),kn=scoreAnalysis[pp.id]?.key_notes||[];const matched=kn.some(n=>n.replace(/\d/g,'')===cn.name.replace(/\d/g,''));smHtml=matched?`<span class="smok">🎼 악보 일치 (${cn.name})</span>`:`<span class="smoff">🎼 이탈 — 현재 ${cn.name}</span>`;}
+    const pfx=dsk?'d':'';
+    return `<div class="${pfx}gi" style="background:${bd.bg};border-color:${bd.bd}"><span class="${pfx}gic">${bd.ic}</span><div class="${pfx}gbody"><strong style="color:${pp.color}">${pp.id} ${pp.name}</strong><p style="color:${bd.co}">${main}</p><p class="${pfx}gsub">${ps}</p>${smHtml}</div></div>`;
+  }).join('');
+}
 
-    const dbEl=document.getElementById('db_'+p.id);
-    if(dbEl) dbEl.textContent=isFinite(db)?db.toFixed(1):'—';
-    const pkEl=document.getElementById('pk_'+p.id);
-    if(pkEl) pkEl.textContent=isFinite(peaks[p.id])?'pk '+peaks[p.id].toFixed(1):'pk —';
-
-    const pct=isFinite(db)?Math.max(0,Math.min(100,(db+60)/60*100)):0;
-    const vc=pct>83?'#ef4444':pct>66?'#f59e0b':p.color;
-    ['vuL_','vuR_'].forEach((pfx,i)=>{
-      const el=document.getElementById(pfx+p.id);
-      if(el){el.style.height=Math.max(0,pct-i*Math.random()*4)+'%';el.style.background=vc;}
-    });
-
-    const ntEl=document.getElementById('nt_'+p.id);
-    const ndEl=document.getElementById('nd_'+p.id);
-    const ctEl=document.getElementById('ct_'+p.id);
-    if(ntEl) ntEl.textContent=nt.name;
-    if(ndEl) ndEl.style.left=(50+nt.cents/2)+'%';
-    if(ctEl){
-      ctEl.textContent=(nt.cents>0?'+':'')+nt.cents+'¢';
-      ctEl.className='pit-c '+(nt.cents<-15?'flat':nt.cents>15?'sharp':'ok');
+/* ═ 메인 루프 ═ */
+function startLoop(){if(loopOn)return;loopOn=true;requestAnimationFrame(loop);}
+function loop(){
+  if(audioCtx){
+    if(isMobile){
+      if(a5run)runFull5M();
+      if(a6run)runPart6M();
+      if(curL==='L5'&&a5run)drawSpec(document.getElementById('cv5'),PARTS);
+      if(curL==='L6'&&pbTab==='sp'&&a6run)drawSpec(document.getElementById('cv6'),PARTS.filter(p=>activeParts.has(p.id)));
+    }else{
+      if(dkrun){if(dskMode==='full')runFullDk();else runPartDk();}
+      drawSpec(document.getElementById('dkSpecCv'),dskMode==='full'?PARTS:PARTS.filter(p=>activeParts.has(p.id)));
     }
+  }
+  requestAnimationFrame(loop);
+}
 
-    if(isFinite(db)&&nt.name!=='—'){
-      const h=pitchHist[p.id]; h.push(nt.cents);
-      if(h.length>HIST_LEN) h.shift();
-      const flatN=h.filter(c=>c<-15).length,sharpN=h.filter(c=>c>15).length,tot=h.length||1;
-      const psEl=document.getElementById('ps_'+p.id);
-      if(psEl) psEl.innerHTML=`<div class="ps-item ps-flat">♭ ${Math.round(flatN/tot*100)}%</div><div class="ps-item ps-ok">● ${Math.round((tot-flatN-sharpN)/tot*100)}%</div><div class="ps-item ps-sharp">♯ ${Math.round(sharpN/tot*100)}%</div>`;
-    }
-
-    const bEl=document.getElementById('bdg_'+p.id);
-    if(bEl){
-      bEl.className='bdg '+cl;
-      bEl.style.cssText=`background:${bd.bg};border-color:${bd.bdr};color:${bd.col}`;
-      const diff=isFinite(db)?db-tgts[p.id]:null;
-      let adj='';
-      if(cl==='low'&&diff!==null) adj=`<span class="bdg-adj">+${Math.abs(Math.round(diff))}dB↑</span>`;
-      if(cl==='high'&&diff!==null) adj=`<span class="bdg-adj">−${Math.round(diff)}dB↓</span>`;
-      bEl.innerHTML=`<span>${bd.icon}</span>${bd.text}${adj}`;
-    }
-  });
-
+function runFull5M(){
+  const db=getRms(ANs['M']),pct=isFinite(db)?Math.max(0,Math.min(100,(db+60)/60*100)):0;
+  const vc=pct>83?'#ef4444':pct>66?'#f59e0b':'var(--acc)';
+  const dbEl=document.getElementById('fdb5');if(dbEl){dbEl.textContent=isFinite(db)?db.toFixed(1):'—';dbEl.style.color=pct>83?'var(--danger)':pct>66?'var(--warn)':'var(--acc)';}
+  const fill=document.getElementById('ffill5');if(fill){fill.style.width=pct+'%';fill.style.background=vc;}
+  if(isFinite(db)&&db>fpk5)fpk5=db;const pkEl=document.getElementById('fpk5');if(pkEl)pkEl.textContent=isFinite(fpk5)?fpk5.toFixed(1)+' dBFS':'—';
+  const lin={};PARTS.forEach(pp=>{const f=getDomFreq(ANs[pp.id],pp.freqLo,pp.freqHi);if(f>20)freqNow[pp.id]=f;const pdb=getRms(ANs[pp.id]);lin[pp.id]=isFinite(pdb)?Math.pow(10,pdb/20):0;});
   const tot=Object.values(lin).reduce((a,b)=>a+b,0)||1;
-  PARTS.forEach(p=>{
-    const pct=lin[p.id]/tot*100;
-    const bf=document.getElementById('bl_'+p.id),bp=document.getElementById('bp_'+p.id);
-    if(bf) bf.style.width=pct+'%';
-    if(bp) bp.textContent=pct.toFixed(0)+'%';
-  });
-
-  if(view==='ch') analyzeHarmony();
-
-  if(view==='gu'){
-    const gl=document.getElementById('gList');
-    if(gl) gl.innerHTML=PARTS.map(p=>{
-      const db=dbs[p.id],diff=isFinite(db)?db-tgts[p.id]:null;
-      const cl=clsLevel(db,tgts[p.id]),bd=BDG[cl];
-      const h=pitchHist[p.id],tot2=h.length||1;
-      const flatPct=Math.round(h.filter(c=>c<-15).length/tot2*100);
-      const sharpPct=Math.round(h.filter(c=>c>15).length/tot2*100);
-      let main='';
-      if(diff===null) main='신호 없음';
-      else if(diff>6)  main=`페이더 현재보다 <strong>−${Math.round(diff)}dB 낮추세요</strong>`;
-      else if(diff>2)  main=`약간 높음 (+${diff.toFixed(1)}dBFS)`;
-      else if(diff<-8) main=`페이더 현재보다 <strong>+${Math.abs(Math.round(diff))}dB 올리세요</strong>`;
-      else if(diff<-3) main=`약간 낮음 (${diff.toFixed(1)}dBFS)`;
-      else             main='적정 레벨 — 현재 유지';
-      const pitchSub=tot2>30?`음정 경향: ♭${flatPct}% 정상${100-flatPct-sharpPct}% ♯${sharpPct}% ${flatPct>40?'→ Flat 경향':sharpPct>40?'→ Sharp 경향':''}`:' ';
-      return `<div class="g-item" style="background:${bd.bg};border-color:${bd.bdr}">
-        <span class="g-icon">${bd.icon}</span>
-        <div class="g-body">
-          <strong style="color:${p.color}">${p.id} ${p.name}</strong>
-          <p style="color:${bd.col}">${main}</p>
-          <p class="g-sub">${pitchSub}</p>
-        </div>
-      </div>`;
-    }).join('');
-  }
+  PARTS.forEach(pp=>{const bf=document.getElementById('bl5_'+pp.id),bp=document.getElementById('bp5_'+pp.id);if(bf)bf.style.width=(lin[pp.id]/tot*100)+'%';if(bp)bp.textContent=(lin[pp.id]/tot*100).toFixed(0)+'%';});
+  runHarm('harm5',new Set(PARTS.map(p=>p.id)),false);
 }
 
-/* ── 스펙트럼 ── */
-const cv=document.getElementById('specCv'),sctx=cv.getContext('2d');
-function resizeCv(){const dpr=window.devicePixelRatio||1;cv.width=cv.offsetWidth*dpr;cv.height=cv.offsetHeight*dpr;}
-window.addEventListener('resize',()=>{if(view==='sp') resizeCv();});
-function drawSpec(){
-  if(!audioCtx) return;
+function runPart6M(){
+  const lin={},dbs={};
+  PARTS.forEach(pp=>{
+    if(!activeParts.has(pp.id))return;
+    const an=ANs[pp.id],db=getRms(an),freq=getDomFreq(an,pp.freqLo,pp.freqHi),nt=f2note(freq);
+    const cl=clsLv(db,tgts[pp.id]),bd=BDG[cl];
+    dbs[pp.id]=db;lin[pp.id]=isFinite(db)?Math.pow(10,db/20):0;
+    if(isFinite(db)&&db>peaks[pp.id])peaks[pp.id]=db;if(freq>20)freqNow[pp.id]=freq;
+    const dbEl=document.getElementById('db6_'+pp.id);if(dbEl)dbEl.textContent=isFinite(db)?db.toFixed(1):'—';
+    const pkEl=document.getElementById('pk6_'+pp.id);if(pkEl)pkEl.textContent=isFinite(peaks[pp.id])?'pk '+peaks[pp.id].toFixed(1):'pk —';
+    const pct=isFinite(db)?Math.max(0,Math.min(100,(db+60)/60*100)):0,vc=pct>83?'#ef4444':pct>66?'#f59e0b':pp.color;
+    ['vl6_','vr6_'].forEach((pfx,i)=>{const el=document.getElementById(pfx+pp.id);if(el){el.style.height=Math.max(0,pct-i*Math.random()*4)+'%';el.style.background=vc;}});
+    const ntEl=document.getElementById('nt6_'+pp.id);if(ntEl)ntEl.textContent=nt.name;
+    const ndEl=document.getElementById('nd6_'+pp.id);if(ndEl)ndEl.style.left=(50+nt.cents/2)+'%';
+    const ctEl=document.getElementById('ct6_'+pp.id);if(ctEl){ctEl.textContent=(nt.cents>0?'+':'')+nt.cents+'¢';ctEl.className='pitc '+(nt.cents<-15?'fl':nt.cents>15?'sh':'it');}
+    if(isFinite(db)&&nt.name!=='—'){const hh=pitchHist[pp.id];hh.push(nt.cents);if(hh.length>300)hh.shift();const fN=hh.filter(c=>c<-15).length,sN=hh.filter(c=>c>15).length,t2=hh.length||1;const psEl=document.getElementById('ps6_'+pp.id);if(psEl)psEl.innerHTML=`<div class="psi psf">♭${Math.round(fN/t2*100)}%</div><div class="psi pso">●${Math.round((t2-fN-sN)/t2*100)}%</div><div class="psi pss">♯${Math.round(sN/t2*100)}%</div>`;}
+    const bEl=document.getElementById('bdg6_'+pp.id);if(bEl){bEl.className='bdg '+cl;bEl.style.cssText=`background:${bd.bg};border-color:${bd.bd};color:${bd.co}`;const diff=isFinite(db)?db-tgts[pp.id]:null;let adj='';if(cl==='low'&&diff!==null)adj=`<span class="bdgadj">+${Math.abs(Math.round(diff))}dB↑</span>`;if(cl==='high'&&diff!==null)adj=`<span class="bdgadj">−${Math.round(diff)}dB↓</span>`;bEl.innerHTML=`<span>${bd.ic}</span>${bd.tx}${adj}`;}
+  });
+  if(pbTab==='gu'){const gl=document.getElementById('pb-gu');if(gl)gl.innerHTML=mkGuide(dbs,false)||'';}
+  if(pbTab==='ha')runHarm('pb-ha',activeParts,false);
+}
+
+
+
+
+
+/* ═ 스펙트럼 ═ */
+function rszCv(id){const cv=document.getElementById(id);if(cv){const d=window.devicePixelRatio||1;cv.width=cv.offsetWidth*d;cv.height=cv.offsetHeight*d;}}
+window.addEventListener('resize',()=>{rszCv('dkSpecCv');if(isMobile){rszCv('cv5');rszCv('cv6');}});
+function drawSpec(cv,parts){
+  if(!cv||!audioCtx)return;
   const W=cv.width,H=cv.height,sr=audioCtx.sampleRate;
-  sctx.fillStyle='#161b22';sctx.fillRect(0,0,W,H);
-  [100,250,500,1000,2000,5000].forEach(f=>{
-    const x=(Math.floor(f/(sr/2048))/1024)*W;
-    sctx.fillStyle='#21262d';sctx.fillRect(x,0,1,H-16);
-    sctx.fillStyle='#7d8590';sctx.font=`${9*(window.devicePixelRatio||1)}px monospace`;
-    sctx.textAlign='center';sctx.fillText(f>=1000?f/1000+'k':f,x,H-4);
-  });
-  // 모드2: 대역 영역 표시
-  if(currentMode===2){
-    PARTS.forEach(p=>{
-      const x1=(Math.floor(p.freqLo/(sr/2048))/1024)*W;
-      const x2=(Math.floor(p.freqHi/(sr/2048))/1024)*W;
-      sctx.fillStyle=p.color+'18';
-      sctx.fillRect(x1,0,x2-x1,H-16);
-    });
-  }
-  PARTS.forEach(p=>{
-    const an=ANs[p.id];if(!an) return;
-    const N=an.frequencyBinCount,b=new Uint8Array(N);
-    an.getByteFrequencyData(b);
-    sctx.beginPath();sctx.strokeStyle=p.color;
-    sctx.lineWidth=1.5*(window.devicePixelRatio||1);sctx.globalAlpha=0.85;
-    for(let i=0;i<N;i++){const x=(i/N)*W,y=H-18-(b[i]/255)*(H-22);i===0?sctx.moveTo(x,y):sctx.lineTo(x,y);}
-    sctx.stroke();sctx.globalAlpha=1;
-  });
+  const ctx=cv.getContext('2d');
+  ctx.fillStyle='#161b22';ctx.fillRect(0,0,W,H);
+  parts.forEach(pp=>{const x1=(Math.floor(pp.freqLo/(sr/2048))/1024)*W,x2=(Math.floor(pp.freqHi/(sr/2048))/1024)*W;ctx.fillStyle=pp.color+'15';ctx.fillRect(x1,0,x2-x1,H-14);});
+  [100,250,500,1000,2000,5000].forEach(f=>{const x=(Math.floor(f/(sr/2048))/1024)*W;ctx.fillStyle='#21262d';ctx.fillRect(x,0,1,H-14);ctx.fillStyle='#7d8590';ctx.font=`${8*(window.devicePixelRatio||1)}px monospace`;ctx.textAlign='center';ctx.fillText(f>=1000?f/1000+'k':f,x,H-3);});
+  parts.forEach(pp=>{const an=ANs[pp.id];if(!an)return;const N=an.frequencyBinCount,b=new Uint8Array(N);an.getByteFrequencyData(b);ctx.beginPath();ctx.strokeStyle=pp.color;ctx.lineWidth=1.5*(window.devicePixelRatio||1);ctx.globalAlpha=0.85;for(let i=0;i<N;i++){const x=(i/N)*W,y=H-15-(b[i]/255)*(H-18);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.stroke();ctx.globalAlpha=1;});
 }
 
-/* ── 녹음 ── */
-document.getElementById('gBtn').addEventListener('click',()=>{
-  if(!micStream){alert('마이크를 먼저 시작하세요.');return;}
-  const btn=document.getElementById('gBtn'),tmr=document.getElementById('gTmr');
-  if(!isRec){
-    gChunks=[];gRec=new MediaRecorder(micStream);
-    gRec.ondataavailable=e=>{if(e.data.size>0) gChunks.push(e.data);};
-    gRec.onstop=()=>{
-      const blob=new Blob(gChunks,{type:'audio/webm'}),url=URL.createObjectURL(blob);
-      const dur=Math.floor((Date.now()-gStart)/1000),now=new Date();
-      const name=`합창_${now.getHours().toString().padStart(2,'0')}${now.getMinutes().toString().padStart(2,'0')}${now.getSeconds().toString().padStart(2,'0')}.webm`;
-      recs.unshift({name,url,dur});renderRecs();
-    };
-    gRec.start();isRec=true;gStart=Date.now();
-    btn.classList.add('on');btn.innerHTML='<span class="rec-dot"></span>녹음 중지';
-    tmr.classList.add('on');
-    gInt=setInterval(()=>{const s=Math.floor((Date.now()-gStart)/1000);tmr.textContent=`${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`;},1000);
-  } else {
-    gRec.stop();isRec=false;clearInterval(gInt);
-    btn.classList.remove('on');btn.innerHTML='<span class="rec-dot"></span>전체 녹음';
-    tmr.classList.remove('on');tmr.textContent='00:00';
-  }
-});
-function renderRecs(){
-  const el=document.getElementById('rList');
-  if(!recs.length){el.innerHTML='<div style="font-size:12px;color:var(--mut)">녹음 없음</div>';return;}
-  el.innerHTML=recs.slice(0,10).map(r=>{
-    const m=Math.floor(r.dur/60).toString().padStart(2,'0'),s=(r.dur%60).toString().padStart(2,'0');
-    return `<div class="ri"><div class="ri-name">${r.name}</div><div class="ri-meta">${m}:${s}</div><audio class="ri-audio" controls src="${r.url}"></audio><a class="ri-dl" href="${r.url}" download="${r.name}">↓ 저장</a></div>`;
-  }).join('');
-}
+/* ═ 유틸 ═ */
+function fmt(s){return`${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`;}
+function setDot(id,on,cls){const el=document.getElementById(id);if(!el)return;el.className='adot'+(on?' '+(cls||'run'):' stp');}
+setTimeout(()=>{rszCv('dkSpecCv');rszCv('cv5');rszCv('cv6');if(typeof bldBalFull==='function')bldBalFull();chkLayout();},200);
 
-/* ── 루프 ── */
-function loop(){if(alive){analyze();if(view==='sp') drawSpec();}requestAnimationFrame(loop);}
-setTimeout(resizeCv,300);
 </script>
 </body>
 </html>
