@@ -774,6 +774,7 @@ function bldLeg(){
 }
 function dskStart(){
   if(!curPid){alert('프로젝트를 먼저 선택하세요.');return;}
+  if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();
   dkrun=true;dkst=Date.now();
   document.getElementById('dkCtrlDot').className='ctrl-dot run';
   document.getElementById('dkStat').textContent='분석 중 — 스피커를 향해 주세요';
@@ -783,6 +784,7 @@ function dskStart(){
   if(dskMode==='part'){PARTS.forEach(p=>{peaks[p.id]=-Infinity;pitchHist[p.id]=[];});}
   else dkfpk=-Infinity;
   dkiv=setInterval(()=>{document.getElementById('dkTimer').textContent=fmt(Math.floor((Date.now()-dkst)/1000));},1000);
+  startLoop();
 }
 function dskStop(){
   const dur=dkst?fmt(Math.floor((Date.now()-dkst)/1000)):null;
@@ -855,7 +857,7 @@ const FEAST_TYPES=[
   {id:'sa',ic:'🕊️', nm:'안식일',   co:'#818cf8'},
   {id:'pe',ic:'🌿', nm:'유월절',   co:'#34d399'},
   {id:'ul',ic:'🫓', nm:'무교절',   co:'#6ee7b7'},
-  {id:'re',ic:'✝️', nm:'부활절',   co:'#f472b6'},
+  {id:'re',ic:'🌸', nm:'부활절',   co:'#f472b6'},
   {id:'as',ic:'☁️', nm:'승천일',   co:'#7dd3fc'},
   {id:'pn',ic:'🔥', nm:'오순절',   co:'#fb923c'},
   {id:'tr',ic:'🎺', nm:'나팔절',   co:'#fbbf24'},
@@ -932,6 +934,7 @@ window.addEventListener('resize',chkLayout);
 document.getElementById('micBtn').addEventListener('click',async()=>{
   try{
     audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+    if(audioCtx.state==='suspended') await audioCtx.resume();
     micStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false},video:false});
     setupANs();
     if(isMobile){showL('L1');gL1();}
@@ -939,7 +942,6 @@ document.getElementById('micBtn').addEventListener('click',async()=>{
       document.getElementById('L0').classList.add('off');
       document.getElementById('DSK').style.display='flex';
       rdPL();rdSL();rdTL();bldBal();bldLeg();bldBalFull();rszCv('dkSpecCv');
-      startLoop();
     }
   }catch(e){const b=document.getElementById('errBox');b.style.display='block';b.textContent='⚠️ 마이크 오류: '+e.message;}
 });
@@ -960,7 +962,6 @@ function setupANs(){
 function showL(id){
   ['L0','L1','L2','L3','L5','L6','L7'].forEach(l=>document.getElementById(l).classList.toggle('off',l!==id));
   curL=id;
-  startLoop();
 }
 function gL1(){showL('L1');rdProjList();}
 function gL2(){
@@ -1040,7 +1041,7 @@ function backL7(){if(isMobile)gL3(curPid);else{document.getElementById('L7').cla
 /* ═ L5 모바일 ═ */
 function bldBal5(){document.getElementById('balCard5').innerHTML=PARTS.map(pp=>`<div style="display:flex;align-items:center;gap:7px"><span style="font-size:11px;font-weight:800;color:${pp.color};min-width:15px">${pp.id}</span><div style="flex:1;height:6px;background:var(--sur2);border-radius:3px;overflow:hidden;position:relative"><div style="position:absolute;top:0;left:${pp.ideal}%;width:2px;height:100%;background:rgba(255,255,255,.18)"></div><div id="bl5_${pp.id}" style="height:100%;border-radius:3px;background:${pp.color};width:0%;transition:width .15s"></div></div><span id="bp5_${pp.id}" style="font-family:monospace;font-size:10px;color:var(--mut);min-width:24px;text-align:right">0%</span></div>`).join('');}
 function rst5(){a5run=false;a5st=null;clearInterval(a5iv);setDot('dot5',false,'');document.getElementById('stat5').textContent='분석 대기 중';document.getElementById('tmr5').textContent='00:00';document.getElementById('tmr5').classList.remove('on');document.getElementById('sb5s').disabled=false;document.getElementById('sb5x').disabled=true;fpk5=-Infinity;}
-function stAnal5(){a5run=true;a5st=Date.now();setDot('dot5',true,'run');document.getElementById('stat5').textContent='분석 중';document.getElementById('tmr5').classList.add('on');document.getElementById('sb5s').disabled=true;document.getElementById('sb5x').disabled=false;a5iv=setInterval(()=>{document.getElementById('tmr5').textContent=fmt(Math.floor((Date.now()-a5st)/1000));},1000);}
+function stAnal5(){if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();a5run=true;a5st=Date.now();setDot('dot5',true,'run');document.getElementById('stat5').textContent='분석 중';document.getElementById('tmr5').classList.add('on');document.getElementById('sb5s').disabled=true;document.getElementById('sb5x').disabled=false;a5iv=setInterval(()=>{document.getElementById('tmr5').textContent=fmt(Math.floor((Date.now()-a5st)/1000));},1000);startLoop();}
 function spAnal5(){const dur=a5st?fmt(Math.floor((Date.now()-a5st)/1000)):null;clearInterval(a5iv);a5run=false;setDot('dot5',false,'stp');document.getElementById('stat5').textContent='분석 종료됨';document.getElementById('tmr5').classList.remove('on');document.getElementById('sb5s').disabled=false;document.getElementById('sb5x').disabled=true;if(isRec)stpRec();openSess('full',null,dur);}
 function sab5(){if(a5run)spAnal5();else gL3(curPid);}
 
@@ -1050,7 +1051,7 @@ function tgP(id){if(activeParts.has(id)){if(activeParts.size===1){alert('최소 
 function selAll(){activeParts=new Set(PARTS.map(p=>p.id));bldPselBar();bldChGrid();}
 function bldChGrid(){const n=activeParts.size;const grid=document.getElementById('chGrid');grid.className='chgrid n'+Math.min(n,4);grid.innerHTML=PARTS.map(pp=>`<div class="ch${activeParts.has(pp.id)?'':' off'}" id="ch_${pp.id}"><div class="chhd"><div><div class="chid" style="color:${pp.color}">${pp.id}</div><div class="chnm">${pp.name}</div></div><div class="chdbb"><div class="chval" id="db6_${pp.id}" style="color:${pp.color}">—</div><div class="chu">dBFS</div><div class="chpk" id="pk6_${pp.id}">pk —</div></div></div><div class="vu"><div class="vut"><div class="vub" id="vl6_${pp.id}" style="background:${pp.color};height:0"></div></div><div class="vut"><div class="vub" id="vr6_${pp.id}" style="background:${pp.color};height:0"></div></div></div><div class="pit"><span class="pitn" id="nt6_${pp.id}" style="color:${pp.color}">—</span><div class="pitt"><div class="pitnd" id="nd6_${pp.id}" style="background:${pp.color};left:50%"></div></div><span class="pitc it" id="ct6_${pp.id}">0¢</span></div><div class="ps" id="ps6_${pp.id}"><div class="psi psf">♭0%</div><div class="psi pso">●100%</div><div class="psi pss">♯0%</div></div><div class="bdg idle" id="bdg6_${pp.id}"><span>⏸</span>${activeParts.has(pp.id)?'신호 없음':'비활성'}</div><div class="tslrow"><label>목표</label><input type="range" min="-40" max="-6" step="1" value="${tgts[pp.id]}" style="accent-color:${pp.color}" oninput="tgts['${pp.id}']=+this.value;svTgt('${pp.id}',+this.value);document.getElementById('tv6_${pp.id}').textContent=this.value+'dB'"><span id="tv6_${pp.id}">${tgts[pp.id]}dB</span></div></div>`).join('');}
 function rst6(){a6run=false;a6st=null;clearInterval(a6iv);setDot('dot6',false,'');document.getElementById('stat6').textContent='분석 대기 중';document.getElementById('tmr6').textContent='00:00';document.getElementById('tmr6').classList.remove('on');document.getElementById('sb6s').disabled=false;document.getElementById('sb6x').disabled=true;PARTS.forEach(p=>{peaks[p.id]=-Infinity;pitchHist[p.id]=[];});}
-function stAnal6(){a6run=true;a6st=Date.now();setDot('dot6',true,'run');document.getElementById('stat6').textContent='분석 중';document.getElementById('tmr6').classList.add('on');document.getElementById('sb6s').disabled=true;document.getElementById('sb6x').disabled=false;PARTS.forEach(p=>{peaks[p.id]=-Infinity;pitchHist[p.id]=[];});a6iv=setInterval(()=>{document.getElementById('tmr6').textContent=fmt(Math.floor((Date.now()-a6st)/1000));},1000);}
+function stAnal6(){if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();a6run=true;a6st=Date.now();setDot('dot6',true,'run');document.getElementById('stat6').textContent='분석 중';document.getElementById('tmr6').classList.add('on');document.getElementById('sb6s').disabled=true;document.getElementById('sb6x').disabled=false;PARTS.forEach(p=>{peaks[p.id]=-Infinity;pitchHist[p.id]=[];});a6iv=setInterval(()=>{document.getElementById('tmr6').textContent=fmt(Math.floor((Date.now()-a6st)/1000));},1000);startLoop();}
 function spAnal6(){const dur=a6st?fmt(Math.floor((Date.now()-a6st)/1000)):null;clearInterval(a6iv);a6run=false;setDot('dot6',false,'stp');document.getElementById('stat6').textContent='분석 종료됨';document.getElementById('tmr6').classList.remove('on');document.getElementById('sb6s').disabled=false;document.getElementById('sb6x').disabled=true;if(isRec)stpRec();openSess('part',[...activeParts],dur);}
 function sab6(){if(a6run)spAnal6();else gL3(curPid);}
 function setPbt(t){pbTab=t;document.querySelectorAll('.pbtab').forEach(el=>el.classList.toggle('on',el.dataset.pt===t));['gu','ha','sp'].forEach(id=>{document.getElementById('pb-'+id).style.display=id===t?'block':'none';});if(t==='sp')rszCv('cv6');}
