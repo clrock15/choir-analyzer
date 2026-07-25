@@ -385,7 +385,7 @@ textarea{font-family:inherit;resize:none}
   <div style="width:68px;height:68px;background:linear-gradient(135deg,var(--acc),var(--S));border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:34px;box-shadow:0 8px 30px rgba(129,140,248,.35)">🎼</div>
   <div style="font-size:21px;font-weight:800;text-align:center">Choir Analyzer</div>
   <div style="display:flex;align-items:center;gap:6px">
-    <div style="background:var(--sur);border:1px solid var(--bdr);border-radius:6px;padding:3px 10px;font-size:10px;font-family:monospace;color:var(--ok)">✓ 2026-07-25 04:24 KST</div>
+    <div style="background:var(--sur);border:1px solid var(--bdr);border-radius:6px;padding:3px 10px;font-size:10px;font-family:monospace;color:var(--ok)">✓ 2026-07-25 04:29 KST</div>
   </div>
   <div style="color:var(--mut);font-size:13px;text-align:center;line-height:1.6">스피커 음향 실시간 분석<br>SATB 파트별 M32 가이드</div>
   <div id="errBox" style="width:100%;max-width:300px;background:#1e0f0f;border:1px solid #7f1d1d;border-radius:9px;padding:11px;color:#fca5a5;font-size:12px;line-height:1.7;display:none"></div>
@@ -1128,9 +1128,8 @@ async function handleScoreUpload(input){
   const imgData=await f2b64(file);prev.src=imgData;prev.style.display='block';zone.style.display='none';zone.classList.add('hf');res.style.display='none';err.style.display='none';lod.style.display='flex';
   const b64=imgData.split(',')[1],mime=file.type||'image/jpeg',now=new Date(),ds=`${now.getFullYear()}.${(now.getMonth()+1).toString().padStart(2,'0')}.${now.getDate().toString().padStart(2,'0')}`;
   try{
-    const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1500,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:mime,data:b64}},{type:'text',text:'이 악보를 분석하여 SATB 합창 파트별 정보를 순수 JSON으로만 응답(마크다운 없이):
-{"title":"곡제목","composer":"작곡가","key":"조성","time_signature":"박자","S":{"range":"C4~G5","key_notes":["C4","E4","G4"],"target_db":-18,"description":"특징"},"A":{"range":"","key_notes":[],"target_db":-20,"description":""},"T":{"range":"","key_notes":[],"target_db":-21,"description":""},"B":{"range":"","key_notes":[],"target_db":-22,"description":""}}
-악보 아니면: {"error":"사유"}'}]}]})});
+    const _prompt='이 악보를 분석하여 SATB 합창 파트별 정보를 순수 JSON으로만 응답(마크다운 없이): {"title":"곡제목","composer":"작곡가","key":"조성","time_signature":"박자","S":{"range":"C4~G5","key_notes":["C4","E4","G4"],"target_db":-18,"description":"특징"},"A":{"range":"","key_notes":[],"target_db":-20,"description":""},"T":{"range":"","key_notes":[],"target_db":-21,"description":""},"B":{"range":"","key_notes":[],"target_db":-22,"description":""}} 악보가 아니면: {"error":"사유"}';
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1500,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:mime,data:b64}},{type:'text',text:_prompt}]}]})});
     const data=await resp.json();lod.style.display='none';
     if(data.error){shScErr('API 오류: '+data.error.message);return;}
     const text=(data.content||[]).filter(c=>c.type==='text').map(c=>c.text).join('');
