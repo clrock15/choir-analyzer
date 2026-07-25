@@ -321,7 +321,7 @@ textarea{font-family:inherit;resize:none}
 <div id="L0" class="L" style="align-items:center;justify-content:center;gap:13px;padding:30px 20px">
   <div style="width:68px;height:68px;background:linear-gradient(135deg,var(--acc),var(--S));border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:34px;box-shadow:0 8px 30px rgba(129,140,248,.35)">🎼</div>
   <div style="font-size:21px;font-weight:800;text-align:center">Choir Analyzer</div>
-  <div style="background:var(--sur);border:1px solid var(--bdr);border-radius:6px;padding:3px 10px;font-size:10px;font-family:monospace;color:var(--ok)">v 2026-07-25 14:16 KST</div>
+  <div style="background:var(--sur);border:1px solid var(--bdr);border-radius:6px;padding:3px 10px;font-size:10px;font-family:monospace;color:var(--ok)">v 2026-07-25 16:49 KST</div>
   <div style="color:var(--mut);font-size:13px;text-align:center;line-height:1.6">스피커 음향 실시간 분석<br>SATB 파트별 M32 가이드</div>
   <div id="errBox" style="width:100%;max-width:300px;background:#1e0f0f;border:1px solid #7f1d1d;border-radius:9px;padding:11px;color:#fca5a5;font-size:12px;line-height:1.7;display:none"></div>
   <button id="micBtn" class="bigbtn" onclick="startMic()" style="background:linear-gradient(135deg,var(--acc),var(--S));max-width:290px">🎤 마이크 허용 후 시작</button>
@@ -564,7 +564,7 @@ if('serviceWorker' in navigator){
   });
   caches.keys().then(keys=>keys.forEach(k=>caches.delete(k)));
 }
-// Build: 2026-07-25 14:16 KST
+// Build: 2026-07-25 16:49 KST
 
 /* ═ 상수 ═ */
 const PARTS=[
@@ -577,7 +577,28 @@ const NOTES=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 const BDG={idle:{ic:'⏸',tx:'신호 없음',bg:'#1c2330',bd:'#30363d',co:'#7d8590'},ok:{ic:'✅',tx:'적정',bg:'#052e16',bd:'#166534',co:'#22c55e'},warn:{ic:'⚠️',tx:'미세조정',bg:'#1c1700',bd:'#713f12',co:'#f59e0b'},low:{ic:'\uD83D\uDD08',tx:'올리기',bg:'#1c0d06',bd:'#9a3412',co:'#fb923c'},high:{ic:'\uD83D\uDD0A',tx:'낮추기',bg:'#1e0f0f',bd:'#991b1b',co:'#ef4444'}};
 const INT_N={0:'유니즌',1:'단2도',2:'장2도',3:'단3도',4:'장3도',5:'완전4도',6:'감5도',7:'완전5도',8:'단6도',9:'장6도',10:'단7도',11:'장7도',12:'옥타브'};
 const INT_Q={0:'g',3:'g',4:'g',5:'g',7:'g',8:'g',9:'g',12:'g',2:'w',10:'w',11:'w',1:'b',6:'b'};
-const TYPES={sa:{ic:'\uD83C\uDF05',nm:'안식일 오전',co:'#818cf8'},sp:{ic:'\uD83C\uDF07',nm:'안식일 오후',co:'#a78bfa'},fa:{ic:'✨',nm:'절기 오전',co:'#f59e0b'},fp:{ic:'\uD83C\uDF1F',nm:'절기 오후',co:'#f97316'}};
+const FEAST_TYPES=[
+  {id:'sa',ic:'\uD83D\uDC8C',nm:'\uC548\uC2DD\uC77C',co:'#818cf8'},
+  {id:'pe',ic:'\uD83C\uDF3F',nm:'\uC720\uC6D4\uC808',co:'#34d399'},
+  {id:'ul',ic:'\uD83C\uDF5E',nm:'\uBB34\uAD50\uC808',co:'#6ee7b7'},
+  {id:'re',ic:'\uD83C\uDF37',nm:'\uBD80\uD65C\uC808',co:'#f472b6'},
+  {id:'as',ic:'\u26C5',nm:'\uC2B9\uCC9C\uC77C',co:'#7dd3fc'},
+  {id:'pn',ic:'\uD83D\uDD25',nm:'\uC624\uC21C\uC808',co:'#fb923c'},
+  {id:'tr',ic:'\uD83C\uDFBA',nm:'\uB098\uD314\uC808',co:'#fbbf24'},
+  {id:'at',ic:'\u2728',nm:'\uB300\uC18D\uC8C4\uC77C',co:'#c084fc'},
+  {id:'tb',ic:'\uD83C\uDF43',nm:'\uCD08\uB9C9\uC808',co:'#4ade80'},
+  {id:'lc',ic:'\uD83C\uDF89',nm:'\uB300\uD68C\uB05D\uB0A0',co:'#60a5fa'},
+];
+const TYPES={};
+FEAST_TYPES.forEach(function(f){
+  TYPES[f.id+'_am']={ic:f.ic,nm:f.nm+' \uC624\uC804',co:f.co};
+  TYPES[f.id+'_pm']={ic:f.ic,nm:f.nm+' \uC624\uD6C4',co:f.co};
+});
+function mkDefName(typeId,ds){
+  var f=FEAST_TYPES.find(function(x){return typeId.startsWith(x.id);});
+  if(!f)return ds+' \uC608\uBC30';
+  return ds+' '+f.nm+(typeId.endsWith('_am')?' \uC624\uC804':' \uC624\uD6C4');
+}
 
 /* ═ 상태 ═ */
 let audioCtx,micStream;
