@@ -324,7 +324,7 @@ textarea{font-family:inherit;resize:none}
   <div style="background:var(--sur);border:1px solid var(--bdr);border-radius:6px;padding:3px 10px;font-size:10px;font-family:monospace;color:var(--ok)">\u2713 2026-07-25 04:37 KST</div>
   <div style="color:var(--mut);font-size:13px;text-align:center;line-height:1.6">스피커 음향 실시간 분석<br>SATB 파트별 M32 가이드</div>
   <div id="errBox" style="width:100%;max-width:300px;background:#1e0f0f;border:1px solid #7f1d1d;border-radius:9px;padding:11px;color:#fca5a5;font-size:12px;line-height:1.7;display:none"></div>
-  <button id="micBtn" class="bigbtn" style="background:linear-gradient(135deg,var(--acc),var(--S));max-width:290px">🎤 마이크 허용 후 시작</button>
+  <button id="micBtn" class="bigbtn" onclick="startMic()" style="background:linear-gradient(135deg,var(--acc),var(--S));max-width:290px">🎤 마이크 허용 후 시작</button>
   <div style="max-width:290px;background:var(--sur2);border:1px solid var(--bdr);border-radius:11px;padding:12px;font-size:11px;line-height:1.8;color:var(--mut)"><b style="color:var(--txt)">사용 방법</b><br>① 마이크 허용 → ② 프로젝트 선택 → ③ 전체/파트 분석 → ④ 시작/종료</div>
 </div>
 
@@ -558,6 +558,7 @@ textarea{font-family:inherit;resize:none}
 
 <script>
 if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
+// Build: 2026-07-25 04:53 KST
 
 /* ═ 상수 ═ */
 const PARTS=[
@@ -626,7 +627,7 @@ function chkLayout(){
 window.addEventListener('resize',chkLayout);
 
 /* ═ 마이크 ═ */
-document.getElementById('micBtn').addEventListener('click',async()=>{
+async function startMic(){
   const btn=document.getElementById('micBtn');
   const errB=document.getElementById('errBox');
   btn.disabled=true;btn.textContent='\u23F3 \uB9C8\uC774\uD06C \uC5F0\uACB0 \uC911\u2026';
@@ -649,7 +650,7 @@ document.getElementById('micBtn').addEventListener('click',async()=>{
     else errB.textContent='\u26A0\uFE0F '+e.name+': '+e.message;
     console.error('mic error:',e);
   }
-});
+}
 
 function setupANs(){
   const ms=audioCtx.createMediaStreamSource(micStream);
