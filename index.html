@@ -321,7 +321,7 @@ textarea{font-family:inherit;resize:none}
 <div id="L0" class="L" style="align-items:center;justify-content:center;gap:13px;padding:30px 20px">
   <div style="width:68px;height:68px;background:linear-gradient(135deg,var(--acc),var(--S));border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:34px;box-shadow:0 8px 30px rgba(129,140,248,.35)">🎼</div>
   <div style="font-size:21px;font-weight:800;text-align:center">Choir Analyzer</div>
-  <div style="background:var(--sur);border:1px solid var(--bdr);border-radius:6px;padding:3px 10px;font-size:10px;font-family:monospace;color:var(--ok)">v 2026-07-25 16:53 KST</div>
+  <div style="background:var(--sur);border:1px solid var(--bdr);border-radius:6px;padding:3px 10px;font-size:10px;font-family:monospace;color:var(--ok)">v 2026-07-25 16:57 KST</div>
   <div style="color:var(--mut);font-size:13px;text-align:center;line-height:1.6">스피커 음향 실시간 분석<br>SATB 파트별 M32 가이드</div>
   <div id="errBox" style="width:100%;max-width:300px;background:#1e0f0f;border:1px solid #7f1d1d;border-radius:9px;padding:11px;color:#fca5a5;font-size:12px;line-height:1.7;display:none"></div>
   <button id="micBtn" class="bigbtn" onclick="startMic()" style="background:linear-gradient(135deg,var(--acc),var(--S));max-width:290px">🎤 마이크 허용 후 시작</button>
@@ -539,7 +539,7 @@ textarea{font-family:inherit;resize:none}
 </div>
 
 <!-- 프로젝트 모달 -->
-<div id="projModal">
+<div id="projModal" style="display:none">
   <div class="projmodalbox">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:13px"><div style="font-size:16px;font-weight:800">프로젝트 선택</div><button onclick="closeProjModal()" style="background:var(--sur2);border:1px solid var(--bdr);border-radius:7px;padding:5px 11px;color:var(--txt);font-size:13px;font-weight:600;cursor:pointer">닫기</button></div>
     <div id="projModalList"></div>
@@ -548,7 +548,7 @@ textarea{font-family:inherit;resize:none}
 </div>
 
 <!-- 세션 메모 모달 -->
-<div id="sessModal">
+<div id="sessModal" style="display:none">
   <div class="sessbox">
     <h3>📝 분석 세션 메모</h3>
     <textarea id="sessNote" placeholder="이번 분석 특이사항 (예: Bass Flat 경향, Soprano 레벨 과다)"></textarea>
