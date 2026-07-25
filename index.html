@@ -321,7 +321,7 @@ textarea{font-family:inherit;resize:none}
 <div id="L0" class="L" style="align-items:center;justify-content:center;gap:13px;padding:30px 20px">
   <div style="width:68px;height:68px;background:linear-gradient(135deg,var(--acc),var(--S));border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:34px;box-shadow:0 8px 30px rgba(129,140,248,.35)">🎼</div>
   <div style="font-size:21px;font-weight:800;text-align:center">Choir Analyzer</div>
-  <div style="background:var(--sur);border:1px solid var(--bdr);border-radius:6px;padding:3px 10px;font-size:10px;font-family:monospace;color:var(--ok)">v 2026-07-25 14:06 KST</div>
+  <div style="background:var(--sur);border:1px solid var(--bdr);border-radius:6px;padding:3px 10px;font-size:10px;font-family:monospace;color:var(--ok)">v 2026-07-25 14:16 KST</div>
   <div style="color:var(--mut);font-size:13px;text-align:center;line-height:1.6">스피커 음향 실시간 분석<br>SATB 파트별 M32 가이드</div>
   <div id="errBox" style="width:100%;max-width:300px;background:#1e0f0f;border:1px solid #7f1d1d;border-radius:9px;padding:11px;color:#fca5a5;font-size:12px;line-height:1.7;display:none"></div>
   <button id="micBtn" class="bigbtn" onclick="startMic()" style="background:linear-gradient(135deg,var(--acc),var(--S));max-width:290px">🎤 마이크 허용 후 시작</button>
@@ -350,8 +350,8 @@ textarea{font-family:inherit;resize:none}
     <div id="feastGrid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin-bottom:10px"></div>
     <div class="sec" style="margin-top:8px">시간대</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:4px">
-      <div class="tyc on" id="tod_am" onclick="sTod('am')"><div class="ti">\uD83C\uDF05</div><div class="tn">오전</div></div>
-      <div class="tyc"    id="tod_pm" onclick="sTod('pm')"><div class="ti">\uD83C\uDF07</div><div class="tn">오후</div></div>
+      <div class="tyc on" id="tod_am" onclick="sTod('am')"><div class="ti">🌅</div><div class="tn">오전</div></div>
+      <div class="tyc"    id="tod_pm" onclick="sTod('pm')"><div class="ti">🌇</div><div class="tn">오후</div></div>
     </div>
     <div class="sec">프로젝트 이름 (선택)</div><input class="inp" id="projNameInp" placeholder="예: 2025년 성탄 오전">
     <div class="sec">메모 (선택)</div><textarea class="inp" rows="3" id="projMemoInp" placeholder="지휘자, 반주자 등"></textarea>
@@ -564,7 +564,7 @@ if('serviceWorker' in navigator){
   });
   caches.keys().then(keys=>keys.forEach(k=>caches.delete(k)));
 }
-// Build: 2026-07-25 14:06 KST
+// Build: 2026-07-25 14:16 KST
 
 /* ═ 상수 ═ */
 const PARTS=[
@@ -574,10 +574,10 @@ const PARTS=[
   {id:'B',name:'Bass',   color:'#f97316',target:-22,ideal:23,freqLo:80, freqHi:350},
 ];
 const NOTES=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
-const BDG={idle:{ic:'⏸',tx:'신호 없음',bg:'#1c2330',bd:'#30363d',co:'#7d8590'},ok:{ic:'✅',tx:'적정',bg:'#052e16',bd:'#166534',co:'#22c55e'},warn:{ic:'⚠️',tx:'미세조정',bg:'#1c1700',bd:'#713f12',co:'#f59e0b'},low:{ic:'🔈',tx:'올리기',bg:'#1c0d06',bd:'#9a3412',co:'#fb923c'},high:{ic:'🔊',tx:'낮추기',bg:'#1e0f0f',bd:'#991b1b',co:'#ef4444'}};
+const BDG={idle:{ic:'⏸',tx:'신호 없음',bg:'#1c2330',bd:'#30363d',co:'#7d8590'},ok:{ic:'✅',tx:'적정',bg:'#052e16',bd:'#166534',co:'#22c55e'},warn:{ic:'⚠️',tx:'미세조정',bg:'#1c1700',bd:'#713f12',co:'#f59e0b'},low:{ic:'\uD83D\uDD08',tx:'올리기',bg:'#1c0d06',bd:'#9a3412',co:'#fb923c'},high:{ic:'\uD83D\uDD0A',tx:'낮추기',bg:'#1e0f0f',bd:'#991b1b',co:'#ef4444'}};
 const INT_N={0:'유니즌',1:'단2도',2:'장2도',3:'단3도',4:'장3도',5:'완전4도',6:'감5도',7:'완전5도',8:'단6도',9:'장6도',10:'단7도',11:'장7도',12:'옥타브'};
 const INT_Q={0:'g',3:'g',4:'g',5:'g',7:'g',8:'g',9:'g',12:'g',2:'w',10:'w',11:'w',1:'b',6:'b'};
-const TYPES={sa:{ic:'🌅',nm:'안식일 오전',co:'#818cf8'},sp:{ic:'🌇',nm:'안식일 오후',co:'#a78bfa'},fa:{ic:'✨',nm:'절기 오전',co:'#f59e0b'},fp:{ic:'🌟',nm:'절기 오후',co:'#f97316'}};
+const TYPES={sa:{ic:'\uD83C\uDF05',nm:'안식일 오전',co:'#818cf8'},sp:{ic:'\uD83C\uDF07',nm:'안식일 오후',co:'#a78bfa'},fa:{ic:'✨',nm:'절기 오전',co:'#f59e0b'},fp:{ic:'\uD83C\uDF1F',nm:'절기 오후',co:'#f97316'}};
 
 /* ═ 상태 ═ */
 let audioCtx,micStream;
@@ -688,7 +688,7 @@ function gL7(){showL('L7');rstScUI();rdScL7();}
 /* ═ L1 ═ */
 function rdProjList(){
   const el=document.getElementById('projList');
-  if(!projects.length){el.innerHTML='<div class="empty"><div class="ei">📁</div><h3>프로젝트 없음</h3><p>새로 만들기를 눌러 시작하세요</p></div>';return;}
+  if(!projects.length){el.innerHTML='<div class="empty"><div class="ei">\uD83D\uDCC1</div><h3>프로젝트 없음</h3><p>새로 만들기를 눌러 시작하세요</p></div>';return;}
   el.innerHTML=projects.map(p=>{const ti=TYPES[p.type]||TYPES.sa,sc=(p.sessions||[]).length,rc=(p.recs||[]).filter(r=>r.url).length;return `<div class="projcard" onclick="gL3('${p.id}')"><div class="pjic" style="background:${ti.co}22">${ti.ic}</div><div style="flex:1;min-width:0"><div class="pjnm">${p.name}</div><div class="pjmt">${ti.nm}${p.feast?' · '+p.feast:''}</div><div class="pjst"><span class="pjs" style="background:#1a1a2e;color:var(--acc)">분석 ${sc}회</span><span class="pjs" style="background:#052e16;color:var(--ok)">녹음 ${rc}개</span></div></div><span style="color:var(--mut);font-size:17px">›</span></div>`;}).join('');
 }
 
@@ -738,9 +738,9 @@ function gL3(id){
   rdHist();rdRecs();rdScL3();
 }
 function svTgt(id,v){const p=gP(curPid);if(p){p.targets[id]=v;sDB();}}
-function rdHist(){const p=gP(curPid);if(!p) return;const el=document.getElementById('histList');if(!(p.sessions||[]).length){el.innerHTML='<div class="empty" style="padding:11px"><div class="ei">📋</div><h3>기록 없음</h3><p>분석을 시작하면 자동 기록됩니다</p></div>';return;}el.innerHTML=[...p.sessions].reverse().map((s,i)=>{const ri=p.sessions.length-1-i;return `<div class="sitem"><div class="sdt">${s.date}<br>${s.time}</div><div class="sbody"><div class="smode">${s.mode==='full'?'🎵 전체':'🎙 파트'}</div>${s.parts?`<div class="stags">${s.parts.map(id=>{const pp=PARTS.find(x=>x.id===id);return `<span class="stag" style="background:${pp.color}22;color:${pp.color}">${id}</span>`;}).join('')}</div>`:''} ${s.note?`<div class="snote">${s.note}</div>`:''}<div style="font-size:10px;color:var(--mut);margin-top:2px">${s.dur||'—'}</div></div><div class="sdel" onclick="delSess(${ri})">✕</div></div>`;}).join('');}
+function rdHist(){const p=gP(curPid);if(!p) return;const el=document.getElementById('histList');if(!(p.sessions||[]).length){el.innerHTML='<div class="empty" style="padding:11px"><div class="ei">\uD83D\uDCCB</div><h3>기록 없음</h3><p>분석을 시작하면 자동 기록됩니다</p></div>';return;}el.innerHTML=[...p.sessions].reverse().map((s,i)=>{const ri=p.sessions.length-1-i;return `<div class="sitem"><div class="sdt">${s.date}<br>${s.time}</div><div class="sbody"><div class="smode">${s.mode==='full'?'\uD83C\uDFB5 전체':'\uD83C\uDF99 파트'}</div>${s.parts?`<div class="stags">${s.parts.map(id=>{const pp=PARTS.find(x=>x.id===id);return `<span class="stag" style="background:${pp.color}22;color:${pp.color}">${id}</span>`;}).join('')}</div>`:''} ${s.note?`<div class="snote">${s.note}</div>`:''}<div style="font-size:10px;color:var(--mut);margin-top:2px">${s.dur||'—'}</div></div><div class="sdel" onclick="delSess(${ri})">✕</div></div>`;}).join('');}
 function delSess(i){if(!confirm('삭제?')) return;const p=gP(curPid);if(!p) return;p.sessions.splice(i,1);sDB();rdHist();}
-function rdRecs(){const p=gP(curPid);if(!p) return;const el=document.getElementById('recList3');const v=(p.recs||[]).filter(r=>r.url);if(!v.length){el.innerHTML='<div class="empty" style="padding:9px"><div class="ei">🎵</div><h3>녹음 없음</h3></div>';return;}el.innerHTML=v.map((r,i)=>`<div class="ri"><div class="rihd"><div class="rinm">${r.name}</div><div class="ridel" onclick="delRec(${i})">✕</div></div><audio class="riau" controls src="${r.url}"></audio><a class="dla" href="${r.url}" download="${r.name}">↓ 저장</a></div>`).join('');}
+function rdRecs(){const p=gP(curPid);if(!p) return;const el=document.getElementById('recList3');const v=(p.recs||[]).filter(r=>r.url);if(!v.length){el.innerHTML='<div class="empty" style="padding:9px"><div class="ei">\uD83C\uDFB5</div><h3>녹음 없음</h3></div>';return;}el.innerHTML=v.map((r,i)=>`<div class="ri"><div class="rihd"><div class="rinm">${r.name}</div><div class="ridel" onclick="delRec(${i})">✕</div></div><audio class="riau" controls src="${r.url}"></audio><a class="dla" href="${r.url}" download="${r.name}">↓ 저장</a></div>`).join('');}
 function delRec(i){if(!confirm('삭제?')) return;const p=gP(curPid);if(!p) return;p.recs.splice(i,1);sDB();rdRecs();}
 function deleteProj(){if(!confirm('프로젝트를 삭제할까요?')) return;projects=projects.filter(p=>p.id!==curPid);sDB();if(isMobile)gL1();else{curPid=null;rdPL();rdSL();document.getElementById('dpnm').textContent='프로젝트 선택 ▾';}}
 function backL7(){if(isMobile)gL3(curPid);else{document.getElementById('L7').classList.add('off');document.getElementById('DSK').style.display='flex';rdSL();}}
@@ -846,7 +846,7 @@ function dskDelProj(id){
 function rdSL(){
   const p=gP(curPid),el=document.getElementById('dsbsl');
   if(!p||!(p.scores||[]).length){el.innerHTML='<div style="font-size:11px;color:var(--mut);padding:4px 7px">악보 없음</div>';return;}
-  el.innerHTML=p.scores.map((s,i)=>`<div class="ssi${s.active?' asc':''}" onclick="dkApplySc(${i})">${s.thumb?`<img class="ssth" src="${s.thumb}" alt="">`:`<div class="ssth">📄</div>`}<div><div class="ssnm">${s.name}</div><div class="sssub">${s.active?'✅ 적용중':'탭하여 적용'}</div></div></div>`).join('');
+  el.innerHTML=p.scores.map((s,i)=>`<div class="ssi${s.active?' asc':''}" onclick="dkApplySc(${i})">${s.thumb?`<img class="ssth" src="${s.thumb}" alt="">`:`<div class="ssth">\uD83D\uDCC4</div>`}<div><div class="ssnm">${s.name}</div><div class="sssub">${s.active?'✅ 적용중':'탭하여 적용'}</div></div></div>`).join('');
 }
 function dkApplySc(i){const p=gP(curPid);if(!p)return;p.scores.forEach((s,idx)=>s.active=idx===i);const s=p.scores[i];if(s?.result){scoreAnalysis=s.result;['S','A','T','B'].forEach(id=>{if(s.result[id]?.target_db){tgts[id]=s.result[id].target_db;p.targets[id]=s.result[id].target_db;}});sDB();rdSL();rdTL();alert(`✅ "${s.name}" 적용됨`);}}
 function rdTL(){const el=document.getElementById('dsbtl');el.innerHTML=PARTS.map(pp=>`<div style="display:flex;align-items:center;gap:5px;margin-bottom:5px"><span style="font-size:11px;font-weight:800;color:${pp.color};min-width:15px">${pp.id}</span><input type="range" min="-40" max="-6" step="1" value="${tgts[pp.id]}" style="flex:1;height:3px;accent-color:${pp.color}" oninput="tgts['${pp.id}']=+this.value;svTgt('${pp.id}',+this.value);document.getElementById('dtv_${pp.id}').textContent=this.value+'dB'"><span id="dtv_${pp.id}" style="font-family:monospace;font-size:10px;color:var(--mut);min-width:28px;text-align:right">${tgts[pp.id]}dB</span></div>`).join('');}
@@ -859,13 +859,13 @@ function bldLeg(){const pts=dskMode==='full'?PARTS:PARTS.filter(pp=>activeParts.
 function dskStart(){if(!curPid){alert('프로젝트를 먼저 선택하세요.');return;}dkrun=true;dkst=Date.now();document.getElementById('dcdot').className='cdot run';document.getElementById('dstat').textContent='분석 중';document.getElementById('dsbtn').disabled=true;document.getElementById('dxbtn').disabled=false;document.getElementById('dtmr').classList.add('on');if(dskMode==='part'){PARTS.forEach(p=>{peaks[p.id]=-Infinity;pitchHist[p.id]=[];});}else dkfpk=-Infinity;dkiv=setInterval(()=>{document.getElementById('dtmr').textContent=fmt(Math.floor((Date.now()-dkst)/1000));},1000);;startLoop();}
 function dskStop(){const dur=dkst?fmt(Math.floor((Date.now()-dkst)/1000)):null;clearInterval(dkiv);dkrun=false;document.getElementById('dcdot').className='cdot stp';document.getElementById('dstat').textContent='분석 종료됨';document.getElementById('dsbtn').disabled=false;document.getElementById('dxbtn').disabled=true;document.getElementById('dtmr').classList.remove('on');if(isRec)stpRec();openSess(dskMode,[...activeParts],dur);}
 /* Project modal */
-function openProjModal(){document.getElementById('projModal').style.display='flex';document.getElementById('projModalList').innerHTML=projects.map(p=>{const ti=TYPES[p.type]||TYPES.sa;return `<div class="projcard" onclick="gL3('${p.id}');closeProjModal()"><div class="pjic" style="background:${ti.co}22">${ti.ic}</div><div style="flex:1;min-width:0"><div class="pjnm">${p.name}</div><div class="pjmt">${ti.nm}</div></div><span style="color:var(--mut);font-size:17px">›</span></div>`;}).join('')||'<div class="empty"><div class="ei">📁</div><h3>프로젝트 없음</h3></div>';}
+function openProjModal(){document.getElementById('projModal').style.display='flex';document.getElementById('projModalList').innerHTML=projects.map(p=>{const ti=TYPES[p.type]||TYPES.sa;return `<div class="projcard" onclick="gL3('${p.id}');closeProjModal()"><div class="pjic" style="background:${ti.co}22">${ti.ic}</div><div style="flex:1;min-width:0"><div class="pjnm">${p.name}</div><div class="pjmt">${ti.nm}</div></div><span style="color:var(--mut);font-size:17px">›</span></div>`;}).join('')||'<div class="empty"><div class="ei">\uD83D\uDCC1</div><h3>프로젝트 없음</h3></div>';}
 function closeProjModal(){document.getElementById('projModal').style.display='none';}
 
 /* ═ 악보 ═ */
 function rstScUI(){scIdx=null;document.getElementById('suzZone').style.display='flex';document.getElementById('suzZone').classList.remove('hf');document.getElementById('scorePreview').style.display='none';document.getElementById('scorePreview').src='';document.getElementById('aiLod').style.display='none';document.getElementById('scRes').style.display='none';document.getElementById('scErr').style.display='none';}
-function rdScL3(){const p=gP(curPid);if(!p) return;const el=document.getElementById('scoreList3');if(!(p.scores||[]).length){el.innerHTML='<div style="background:var(--sur2);border:1px dashed var(--bdr);border-radius:9px;padding:11px;text-align:center;font-size:11px;color:var(--mut)">악보 없음 — 악보 추가를 눌러 업로드하세요</div>';return;}el.innerHTML=p.scores.map((s,i)=>`<div class="scthumb" onclick="viewSc(${i})">${s.thumb?`<img class="scthimg" src="${s.thumb}" alt="">`:`<div class="scthimg">📄</div>`}<div style="flex:1;min-width:0"><div class="scthnm">${s.name}</div><div class="scthsub">${s.analyzed?'✅ 분석 완료':'⏳ 미분석'} · ${s.date}${s.result?' · S:'+s.result.S?.range:''}</div></div>${s.active?'<div style="font-size:10px;padding:2px 6px;border-radius:7px;background:#052e16;color:var(--ok);font-weight:700;flex-shrink:0">적용중</div>':''}<div class="scthdel" onclick="event.stopPropagation();delSc(${i})">✕</div></div>`).join('');}
-function rdScL7(){const p=gP(curPid);if(!p) return;const el=document.getElementById('scListL7');if(!(p.scores||[]).length){el.innerHTML='<div class="empty" style="padding:11px"><div class="ei">📄</div><h3>악보 없음</h3></div>';return;}el.innerHTML=p.scores.map((s,i)=>`<div class="scthumb" onclick="viewSc(${i})">${s.thumb?`<img class="scthimg" src="${s.thumb}" alt="">`:`<div class="scthimg">📄</div>`}<div style="flex:1;min-width:0"><div class="scthnm">${s.name}</div><div class="scthsub">${s.active?'✅ 적용중':'탭하여 보기'} · ${s.date}</div></div><div class="scthdel" onclick="event.stopPropagation();delSc(${i})">✕</div></div>`).join('');}
+function rdScL3(){const p=gP(curPid);if(!p) return;const el=document.getElementById('scoreList3');if(!(p.scores||[]).length){el.innerHTML='<div style="background:var(--sur2);border:1px dashed var(--bdr);border-radius:9px;padding:11px;text-align:center;font-size:11px;color:var(--mut)">악보 없음 — 악보 추가를 눌러 업로드하세요</div>';return;}el.innerHTML=p.scores.map((s,i)=>`<div class="scthumb" onclick="viewSc(${i})">${s.thumb?`<img class="scthimg" src="${s.thumb}" alt="">`:`<div class="scthimg">\uD83D\uDCC4</div>`}<div style="flex:1;min-width:0"><div class="scthnm">${s.name}</div><div class="scthsub">${s.analyzed?'✅ 분석 완료':'⏳ 미분석'} · ${s.date}${s.result?' · S:'+s.result.S?.range:''}</div></div>${s.active?'<div style="font-size:10px;padding:2px 6px;border-radius:7px;background:#052e16;color:var(--ok);font-weight:700;flex-shrink:0">적용중</div>':''}<div class="scthdel" onclick="event.stopPropagation();delSc(${i})">✕</div></div>`).join('');}
+function rdScL7(){const p=gP(curPid);if(!p) return;const el=document.getElementById('scListL7');if(!(p.scores||[]).length){el.innerHTML='<div class="empty" style="padding:11px"><div class="ei">\uD83D\uDCC4</div><h3>악보 없음</h3></div>';return;}el.innerHTML=p.scores.map((s,i)=>`<div class="scthumb" onclick="viewSc(${i})">${s.thumb?`<img class="scthimg" src="${s.thumb}" alt="">`:`<div class="scthimg">\uD83D\uDCC4</div>`}<div style="flex:1;min-width:0"><div class="scthnm">${s.name}</div><div class="scthsub">${s.active?'✅ 적용중':'탭하여 보기'} · ${s.date}</div></div><div class="scthdel" onclick="event.stopPropagation();delSc(${i})">✕</div></div>`).join('');}
 function delSc(i){if(!confirm('삭제?')) return;const p=gP(curPid);if(!p) return;p.scores.splice(i,1);if(!p.scores.some(s=>s.active))scoreAnalysis=null;sDB();rdScL3();rdScL7();rdSL();}
 function viewSc(i){const p=gP(curPid);if(!p) return;const s=p.scores[i];if(!s) return;gL7();if(s.imageData){const pr=document.getElementById('scorePreview');pr.src=s.imageData;pr.style.display='block';document.getElementById('suzZone').style.display='none';}if(s.result){scIdx=i;showScRes(s.result,s.name,i);}}
 async function handleScoreUpload(input){
