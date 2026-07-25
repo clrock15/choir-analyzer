@@ -321,7 +321,7 @@ textarea{font-family:inherit;resize:none}
 <div id="L0" class="L" style="align-items:center;justify-content:center;gap:13px;padding:30px 20px">
   <div style="width:68px;height:68px;background:linear-gradient(135deg,var(--acc),var(--S));border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:34px;box-shadow:0 8px 30px rgba(129,140,248,.35)">🎼</div>
   <div style="font-size:21px;font-weight:800;text-align:center">Choir Analyzer</div>
-  <div style="background:var(--sur);border:1px solid var(--bdr);border-radius:6px;padding:3px 10px;font-size:10px;font-family:monospace;color:var(--ok)">v 2026-07-25 16:49 KST</div>
+  <div style="background:var(--sur);border:1px solid var(--bdr);border-radius:6px;padding:3px 10px;font-size:10px;font-family:monospace;color:var(--ok)">v 2026-07-25 16:53 KST</div>
   <div style="color:var(--mut);font-size:13px;text-align:center;line-height:1.6">스피커 음향 실시간 분석<br>SATB 파트별 M32 가이드</div>
   <div id="errBox" style="width:100%;max-width:300px;background:#1e0f0f;border:1px solid #7f1d1d;border-radius:9px;padding:11px;color:#fca5a5;font-size:12px;line-height:1.7;display:none"></div>
   <button id="micBtn" class="bigbtn" onclick="startMic()" style="background:linear-gradient(135deg,var(--acc),var(--S));max-width:290px">🎤 마이크 허용 후 시작</button>
@@ -564,7 +564,54 @@ if('serviceWorker' in navigator){
   });
   caches.keys().then(keys=>keys.forEach(k=>caches.delete(k)));
 }
-// Build: 2026-07-25 16:49 KST
+
+/* ===== BOOT TEST ===== */
+window._bootOK = true;
+window.startMic = function() {
+  var btn = document.getElementById('micBtn');
+  var err = document.getElementById('errBox');
+  if(btn) { btn.disabled = true; btn.textContent = '\uC5F0\uACB0 \uC911...'; }
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    if(err) { err.style.display='block'; err.textContent='\uB9C8\uC774\uD06C \uBBF8\uC9C0\uC6D0 \uBE0C\uB77C\uC6B0\uC800'; }
+    if(btn) { btn.disabled=false; btn.textContent='\uD83C\uDFA4 \uB9C8\uC774\uD06C \uD5C8\uC6A9 \uD6C4 \uC2DC\uC791'; }
+    return;
+  }
+  navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false},video:false})
+  .then(function(stream) {
+    window._micStream = stream;
+    window._startMain(stream);
+  })
+  .catch(function(e) {
+    if(btn) { btn.disabled=false; btn.textContent='\uD83C\uDFA4 \uB9C8\uC774\uD06C \uD5C8\uC6A9 \uD6C4 \uC2DC\uC791'; }
+    if(err) {
+      err.style.display='block';
+      if(e.name==='NotAllowedError') err.textContent='\uAD8C\uD55C\uC774 \uAC70\uBD80\uB418\uC5C8\uC2B5\uB2C8\uB2E4. \uBE0C\uB77C\uC6B0\uC800 \uC124\uC815\uC5D0\uC11C \uB9C8\uC774\uD06C\uB97C \uD5C8\uC6A9\uD574 \uC8FC\uC138\uC694.';
+      else err.textContent='\uC624\uB958: ' + e.name + ' - ' + e.message;
+    }
+  });
+};
+window._startMain = function(stream) {
+  try {
+    window._audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if(window._audioCtx.state === 'suspended') window._audioCtx.resume();
+    micStream = stream;
+    audioCtx = window._audioCtx;
+    setupANs();
+    if(isMobile) { showL('L1'); gL1(); }
+    else {
+      document.getElementById('L0').classList.add('off');
+      document.getElementById('DSK').style.display = 'flex';
+      rdPL(); rdSL(); rdTL(); bldBal(); bldLeg(); bldBalFull(); rszCv('dkSpecCv');
+    }
+  } catch(e2) {
+    var err = document.getElementById('errBox');
+    if(err) { err.style.display='block'; err.textContent='\uC2DC\uC791 \uC624\uB958: '+e2.message; }
+    var btn = document.getElementById('micBtn');
+    if(btn) { btn.disabled=false; btn.textContent='\uD83C\uDFA4 \uB9C8\uC774\uD06C \uD5C8\uC6A9 \uD6C4 \uC2DC\uC791'; }
+  }
+};
+/* ===== END BOOT TEST ===== */
+// Build: 2026-07-25 16:53 KST
 
 /* ═ 상수 ═ */
 const PARTS=[
@@ -654,30 +701,7 @@ function chkLayout(){
 window.addEventListener('resize',chkLayout);
 
 /* ═ 마이크 ═ */
-async function startMic(){
-  const btn=document.getElementById('micBtn');
-  const errB=document.getElementById('errBox');
-  btn.disabled=true;btn.textContent='\u23F3 \uB9C8\uC774\uD06C \uC5F0\uACB0 \uC911\u2026';
-  errB.style.display='none';
-  try{
-    micStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false},video:false});
-    audioCtx=new(window.AudioContext||window.webkitAudioContext)();
-    if(audioCtx.state==='suspended')await audioCtx.resume();
-    setupANs();
-    if(isMobile){showL('L1');gL1();}
-    else{
-      document.getElementById('L0').classList.add('off');
-      document.getElementById('DSK').style.display='flex';
-      rdPL();rdSL();rdTL();bldBal();bldLeg();bldBalFull();rszCv('dkSpecCv');
-    }
-  }catch(e){
-    btn.disabled=false;btn.textContent='\uD83C\uDFA4 \uB9C8\uC774\uD06C \uD5C8\uC6A9 \uD6C4 \uC2DC\uC791';
-    errB.style.display='block';
-    if(e.name==='NotAllowedError')errB.textContent='\u26A0\uFE0F \uB9C8\uC774\uD06C \uAD8C\uD55C\uC774 \uAC70\uBD80\uB418\uC5C8\uC2B5\uB2C8\uB2E4. \uBE0C\uB77C\uC6B0\uC800 \uC124\uC815\uC5D0\uC11C \uB9C8\uC774\uD06C\uB97C \uD5C8\uC6A9\uD574 \uC8FC\uC138\uC694.';
-    else errB.textContent='\u26A0\uFE0F '+e.name+': '+e.message;
-    console.error('mic error:',e);
-  }
-}
+
 
 function setupANs(){
   const ms=audioCtx.createMediaStreamSource(micStream);
