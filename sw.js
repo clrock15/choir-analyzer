@@ -1,4 +1,4 @@
-const CACHE = 'falcon-choir-v202607250453';
+const CACHE = 'falcon-choir-v202607251400';
 const ASSETS = ['./index.html', './manifest.json', './icon-192.svg', './icon-512.svg'];
 
 self.addEventListener('install', e => {
@@ -14,7 +14,6 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-  // Never cache API calls
   if(e.request.url.includes('api.anthropic.com')) return;
   e.respondWith(
     caches.match(e.request).then(cached => cached || fetch(e.request))
