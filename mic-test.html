@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mic Test</title>
+<style>
+body{background:#0d1117;color:#e6edf3;font-family:sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:16px;margin:0}
+button{padding:16px 32px;border-radius:12px;border:none;background:#818cf8;color:#fff;font-size:18px;font-weight:800;cursor:pointer}
+#log{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:16px;width:320px;min-height:120px;font-size:13px;font-family:monospace;white-space:pre-wrap}
+</style>
+</head>
+<body>
+<div style="font-size:22px;font-weight:800">마이크 이벤트 테스트</div>
+<button id="btn">마이크 허용 후 시작</button>
+<div id="log">대기 중...</div>
+<script>
+var log = document.getElementById('log');
+function addLog(msg) {
+  log.textContent += '\n' + new Date().toLocaleTimeString() + ' ' + msg;
+}
+
+// Method 1: onclick attribute (set via JS)
+document.getElementById('btn').onclick = function() {
+  addLog('onclick 실행됨');
+  startMic();
+};
+
+// Method 2: addEventListener backup
+document.getElementById('btn').addEventListener('click', function() {
+  addLog('addEventListener 실행됨');
+});
+
+function startMic() {
+  addLog('startMic() 호출됨');
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    addLog('ERROR: getUserMedia 없음');
+    return;
+  }
+  addLog('getUserMedia 요청 중...');
+  navigator.mediaDevices.getUserMedia({audio: true, video: false})
+    .then(function(stream) {
+      addLog('SUCCESS: 마이크 허용됨!');
+      addLog('트랙수: ' + stream.getAudioTracks().length);
+      stream.getTracks().forEach(function(t) { t.stop(); });
+    })
+    .catch(function(e) {
+      addLog('ERROR: ' + e.name + ' - ' + e.message);
+    });
+}
+
+addLog('스크립트 로드 완료');
+addLog('btn 존재: ' + (document.getElementById('btn') ? 'YES' : 'NO'));
+</script>
+</body>
+</html>
